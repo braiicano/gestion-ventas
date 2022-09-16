@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap');
 body{font-size: 18px;}
-.welcome{
-  height: 80vh;
-}
+
 .title{
   font-size: 4em;
   font-family: 'Oswald', sans-serif;
@@ -16,15 +14,21 @@ body{font-size: 18px;}
   align-items: center;
   text-align: center;
 }
+.welcome{
+  height: 80vh;
+}
 .welcome-login{
+  flex-wrap: wrap;
   flex-direction: row;
   width: 60vw;
   height: 50vh;
 }
 
 .welcome-newuser, .welcome-olduser{
-  width: 50%;
+  min-width: 20em;
+  max-width: 50%;
   height: 100%;
+  min-height: 16em;
   padding: 1vw;
   margin: 1vw;
   border-radius: 3%;
