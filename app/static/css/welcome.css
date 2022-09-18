@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap');
-body{font-size: 18px;}
+body{
+  font-size: 18px;
+  height: 100vh;
+}
 
 .title{
   font-size: 4em;
@@ -10,16 +13,15 @@ body{font-size: 18px;}
 .welcome, .welcome-login{
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
   text-align: center;
 }
 .welcome{
-  height: 80vh;
 }
 .welcome-login{
   flex-wrap: wrap;
-  flex-direction: row;
+  /*flex-direction: row;*/
   width: 60vw;
   height: 50vh;
 }

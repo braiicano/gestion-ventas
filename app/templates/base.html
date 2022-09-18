@@ -5,17 +5,12 @@
 	<meta http-equiv="XUA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="shortcut icon" href="{{ url_for('static',filename='img/favicon.png') }}" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/normalize.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/{% style %}.css') }}">
 	<script src="https://kit.fontawesome.com/7e1beb9434.js" crossorigin="anonymous"></script>
 	<title>GesVen</title>
 </head>
 <body>
-	<h1 class="menu">Gestion de ventas y stock</h1>
-	<form action="" method="get"></form>
-	<input type="search" name="search" id="search">
-	<div class="container">
-	{% block content %}
-	{% endblock %}
-	</div>
+{% block content %}{% endblock %}
 </body>
 </html>

@@ -6,7 +6,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="shortcut icon" href="{{ url_for('static',filename='img/favicon.png') }}" type="image/x-icon">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/normalize.css') }}">
-  <!--<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}">-->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/welcome.css') }}">
 	<script src="https://kit.fontawesome.com/7e1beb9434.js" crossorigin="anonymous"></script>
 	<title>GesVen</title>
@@ -27,7 +26,7 @@
       </div>
       <div class="welcome-olduser">
         <h2>Si ya estas registrado:</h2>
-        <form action="{{ url_for('login') }}" method="post">
+        <form action="{{ url_for('login') }}" method="get">
           <input type="text" name="nickname" placeholder="Nombre de usuario">
           <input type="password" name="password" placeholder="Contraseña">
           <button type="submit" class="welcome-button">Iniciar sesión</button>

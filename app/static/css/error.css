@@ -1,0 +1,24 @@
+body{margin: auto}
+.error, body{
+  width: 90vw;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+a{
+  text-decoration: none;
+  color: #fff
+}
+h1{
+  background-color: #559;
+  border-radius: 15px;
+  padding: 1em;
+}
+h1:hover{
+  background-color: #55f;
+}
+img{
+  width: 40%;
+}
