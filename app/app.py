@@ -1,4 +1,5 @@
 # Modules
+from datetime import datetime
 from flask import Flask, render_template, redirect, request, url_for, make_response, session, escape, flash, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,7 +21,7 @@ class Users(db.Model):
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    # datetime = db.Column(db.DateTime(),default=db.datenow())
+    datetime = db.Column(db.DateTime(),default=datetime.now())
     # status = db.Column(db.Integer, nullable=False)
 
 class Create_Items(db.Model):
@@ -36,9 +37,7 @@ def check_data(data,value):
     to_check = db.session.query(Users).all()
     for i in to_check:
         if data[value] == i.username or data[value] == i.email:
-            print("###############TRUE")
             return True
-    print("###################FALSE")
     return False
 def showme():
     queries = db.session.query(Users).all()
