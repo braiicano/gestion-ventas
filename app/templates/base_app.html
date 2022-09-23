@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block stylecss %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/base_app.css') }}">
+{% endblock %}
+{% block title %}-Stock y ventas{% endblock %}
+{% block content %}
+<div class="menu-content">
+  <p class="bar-item">Hola:{{ name }}</p>
+  <p class="bar-item">Nueva venta</p> 
+  <p class="bar-item">Ver stock</p>
+  <input type="search" placeholder="¿Qué estás buscando?">
+  <a href="{{ url_for('logout') }}">
+    <p class="disconnect">Desconectar</p>
+  </a>
+</div>
+<div class="work-panel">
+  {% block front_panel %}
+  {% endblock %}
+</div>
+{% endblock %}

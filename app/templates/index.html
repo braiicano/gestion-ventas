@@ -11,11 +11,11 @@
       <h2 class="subtitle">Si sos nuevo usuario</h2>
       <input placeholder="Nombre de usuario" type="text" name="username" class="form-item" required minlength="4">
 			<input placeholder="Correo electrónico" type="text" name="email" class="form-item" required>
-			<input placeholder="Contraseña" type="text" name="password" class="form-item" required minlength="8">
+			<input placeholder="Contraseña" type="password" name="password" class="form-item" required minlength="8">
 			<input placeholder="Repetir contraseña" type="password" name="confirm-password" class="form-item" required minlength="8">
       <button class="form-button" type="submit">Registrase</button>
     </form>
-    <form action="{{ url_for('login') }}" method="get" class="form-container">
+    <form action="{{ url_for('login') }}" method="post" class="form-container">
       <h2 class="subtitle">Si ya tenes cuenta</h2>
       <input placeholder="Ingresa tu usuario" type="text" name="username" class="form-item" required>
 			<input placeholder="Ingresa tu contraseña" type="password" name="password" class="form-item" required>

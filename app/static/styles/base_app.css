@@ -1,0 +1,28 @@
+@import url("index.css");
+.menu-content{
+  width: 100vw;
+  height: 10vh;
+  background-color: #555;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.work-panel{
+  width: 100vw;
+  height: auto;
+}
+.bar-item:hover{color:#fff;}
+.disconnect{
+  background-color: rgb(90,75,205);
+  box-shadow: .1em .1em .5em #fff;
+  padding: .5em;
+  border-radius: .5em;
+  transition-duration: .2s;
+}
+.disconnect:hover{
+  background-color: rgb(50,65,185);
+  color: #fff;
+}
