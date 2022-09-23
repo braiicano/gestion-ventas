@@ -1,0 +1,10 @@
+{% extends "base_app.html" %}
+{% block front_panel %}
+<style>
+  #client{background-color: #888;padding: .75em 0}
+</style>
+<h2 style="text-align: center;"> Hola desde client</h2>
+{% for i in db %}
+<p>{{i.username}}</p>
+{% endfor %}
+{% endblock %}

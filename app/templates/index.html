@@ -8,15 +8,15 @@
   <h1 class="title">GesVen</h1>
   <div class="container form-view">
     <form action="{{ url_for('singup') }}" method="post" class="form-container">
-      <h2 class="subtitle">Si sos nuevo usuario</h2>
-      <input placeholder="Nombre de usuario" type="text" name="username" class="form-item" required minlength="4">
+      <h2 class="subtitle">Si sos usuario nuevo</h2>
+      <input placeholder="Nombre de usuario" type="text" name="username" class="form-item" required minlength="4" autofocus>
 			<input placeholder="Correo electrónico" type="text" name="email" class="form-item" required>
 			<input placeholder="Contraseña" type="password" name="password" class="form-item" required minlength="8">
-			<input placeholder="Repetir contraseña" type="password" name="confirm-password" class="form-item" required minlength="8">
+			<input placeholder="Confirmar contraseña" type="password" name="confirm-password" class="form-item" required minlength="8">
       <button class="form-button" type="submit">Registrase</button>
     </form>
     <form action="{{ url_for('login') }}" method="post" class="form-container">
-      <h2 class="subtitle">Si ya tenes cuenta</h2>
+      <h2 class="subtitle">Iniciar sesión</h2>
       <input placeholder="Ingresa tu usuario" type="text" name="username" class="form-item" required>
 			<input placeholder="Ingresa tu contraseña" type="password" name="password" class="form-item" required>
       <button class="form-button" type="submit">Iniciar sesion</button>

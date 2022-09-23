@@ -3,6 +3,7 @@
 :root{
   --font: 17px;
   --hover: rgb(178,200,255);
+  --title-hover: rgb(31 65 148);
   --hover-a: rgba(198,250,255,.9);
   --item-color: rgb(90,110,230);
 }
@@ -24,7 +25,7 @@ h2{font-size: 2em;}
 h3{font-size: 1.5em;}
 h4{font-size: .8em;}
 p{font-size: 1em;}
-a,b,i,input{
+a,b,i,input,button{
   font-size: inherit;
   text-decoration: none;
 }
@@ -80,26 +81,28 @@ img{
 }
 @keyframes pop{
   0%{
-    text-shadow: 0 0 0 var(--hover);
+    text-shadow: 0 0 0 var(--title-hover);
   }
   50%{
     /*color: var(--hover);*/
     text-shadow: .1em .1em 1em #000;
   }
   100%{
-    text-shadow: 0 0 0 var(--hover);
+    text-shadow: 0 0 0 var(--title-hover);
   }
 }
 .subtitle{margin-bottom: .5em;}
 .form-item, .form-button{
   margin: .55em 0;
   width: 75%;
+  transition-duration: .2s;
 }
 .form-item:focus-within{
   background-color: var(--hover);
 }
 .form-button:hover{
-  background-color: var(--hover);
+  background-color: var(--title-hover);
+  color: #fff;
 }
 .forget-password{
   color: var(--item-color);

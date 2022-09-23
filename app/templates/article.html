@@ -1,0 +1,19 @@
+{% extends "base_app.html" %}
+{% block front_panel %}
+<style>
+  #article{background-color: #888;padding: .75em 0}
+</style>
+<div class="article-menu container">
+  <a href="{{ url_for('article_new') }}"><p class="article-button-menu">Agregar artículo<p></a>
+  <form action="{{ url_for('search')}}" method="get">
+    <input class="article-input-menu" type="search" placeholder="Ingrese nombre de artículo, codigo de barras o proveedor">
+    <button class="article-button-menu" type="submit">Buscar</button>
+  </form>
+</div>
+{% if articles %}
+  <h3 style="text-align: center;">Listando articulos encontrados</h3>
+  {% for article in articles %}
+    <p>{{article}}</p>
+  {% endfor %}
+{% endif %}
+{% endblock %}

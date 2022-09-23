@@ -1,5 +1,5 @@
 # Modules
-from flask import Flask, render_template, redirect, request, url_for, make_response, session, escape, flash, g
+from flask import Flask, render_template, redirect, request, url_for, make_response, session, escape, flash, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -20,6 +20,7 @@ class Users(db.Model):
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    # datetime = db.Column(db.DateTime(),default=db.datenow())
     # status = db.Column(db.Integer, nullable=False)
 
 class Create_Items(db.Model):
@@ -78,7 +79,7 @@ def singup():
     if request.method == 'POST':
         if request.form['password'] == request.form['confirm-password']:
             print('###user###')
-            if check_data(request.form,'username'):
+            if not check_data(request.form,'username'):
                 print('###email###')
                 if not check_data(request.form, 'email'):
                     create(request.form)
@@ -111,11 +112,25 @@ def login():
 @app.route("/home")
 def home():
     if g.user:
-        queries = db.session.query(Users).all()
-        return render_template('app.html',name=g.user,db=queries)
+        iterable=request.args.get('name')
+        if not iterable:
+            queries = db.session.query(Users).all()
+            return render_template('app.html',name=g.user,db=queries)
+        return render_template(f'{iterable}.html',name=g.user,articles=temp_list)
     else:
         flash("Debes iniciar sesión primero.","alert-message")
         return redirect('/')
+
+@app.route("/article_new")# agregar plantilla para creacion de articulos
+def article_new():
+    temp_list.append(request.args.get('value'))
+    return redirect(url_for('home',name='article'))
+
+@app.route("/search")# mostrar vista de elemento encontrado o no
+def search():
+    #realizar consulta
+    return redirect(url_for('home',name='article'))
+
 @app.errorhandler(404)
 def error(e):
     return render_template("error.html"),404
@@ -133,4 +148,5 @@ def logout(name = 'new_session'):
 app.secret_key = "Santino2015Benicio19"
 if __name__ == '__main__':
     db.create_all()
+    temp_list=[]
     app.run(debug= True, port= 8000)
