@@ -7,5 +7,9 @@
 }
 .alert-message{
   color: #fff;
-  background-color: #d33;
+  background-color: #db2020;
+}
+.leave-session{
+  color: #fff;
+  background-color: #110ff3;
 }

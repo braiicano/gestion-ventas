@@ -112,8 +112,10 @@ def login():
 def home():
     if g.user:
         queries = db.session.query(Users).all()
-        return render_template('showme.html',name=g.user,db=queries)
-    return redirect('/')
+        return render_template('app.html',name=g.user,db=queries)
+    else:
+        flash("Debes iniciar sesión primero.","alert-message")
+        return redirect('/')
 @app.errorhandler(404)
 def error(e):
     return render_template("error.html"),404
@@ -125,6 +127,7 @@ def method_not_allowed(e):
 @app.route('/logout')
 def logout(name = 'new_session'):
     session.pop(name,None)
+    flash("Sesión cerrada correctamente","leave-session")
     return redirect('/')
 
 app.secret_key = "Santino2015Benicio19"

@@ -1,0 +1,21 @@
+############################################################################
+Ventas>
+  Nueva venta> [tipo de factura],[buscar articulo],[agregar articulo]
+               [listar articulos seleccionados]>(opciones de quitar y aumentar articulos)
+               [total articulos+total precio]
+               [boton de pago]
+  Buscar comprobante> [barra de busqueda]
+############################################################################
+Caja> []
+############################################################################
+Clientes> [ingresar cliente] [listar clientes] [modificar/borrar clientes]
+############################################################################
+Proveedores>
+############################################################################
+Estadisticas>
+############################################################################
+Articulos> [agregar articulos] [ver articulos] [modificar/borrar articulos]
+############################################################################
+Operaciones>
+############################################################################
+Administracion>
