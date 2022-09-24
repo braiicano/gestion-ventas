@@ -77,9 +77,7 @@ def index():
 def singup():
     if request.method == 'POST':
         if request.form['password'] == request.form['confirm-password']:
-            print('###user###')
             if not check_data(request.form,'username'):
-                print('###email###')
                 if not check_data(request.form, 'email'):
                     create(request.form)
                     session['new_session'] = request.form['username']
@@ -115,14 +113,17 @@ def home():
         if not iterable:
             queries = db.session.query(Users).all()
             return render_template('app.html',name=g.user,db=queries)
-        return render_template(f'{iterable}.html',name=g.user,articles=temp_list)
+        return render_template(f'{iterable}.html',name=g.user,articles=temp_list,columns=ARTICLE_ELEMENTS)
     else:
         flash("Debes iniciar sesión primero.","alert-message")
         return redirect('/')
 
-@app.route("/article_new")# agregar plantilla para creacion de articulos
+@app.route("/article_new",methods=['POST'])# agregar plantilla para creacion de articulos
 def article_new():
-    temp_list.append(request.args.get('value'))
+    temp_list[request.form['name']]=list()
+    for article in request.form:
+        temp_list[request.form['name']].append(request.form[article])
+    print(temp_list)
     return redirect(url_for('home',name='article'))
 
 @app.route("/search")# mostrar vista de elemento encontrado o no
@@ -147,5 +148,6 @@ def logout(name = 'new_session'):
 app.secret_key = "Santino2015Benicio19"
 if __name__ == '__main__':
     db.create_all()
-    temp_list=[]
+    temp_list=dict()
+    ARTICLE_ELEMENTS=['Nombre','Categoría','Proveedor','SKU','Stock','Precio','IVA','Ganancia','Promo','En venta','Descripción']
     app.run(debug= True, port= 8000)

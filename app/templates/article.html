@@ -4,16 +4,89 @@
   #article{background-color: #888;padding: .75em 0}
 </style>
 <div class="article-menu container">
-  <a href="{{ url_for('article_new') }}"><p class="article-button-menu">Agregar artículo<p></a>
+  <a href="#"><p class="article-button-menu open-modal-view">Agregar artículo</p></a>
   <form action="{{ url_for('search')}}" method="get">
-    <input class="article-input-menu" type="search" placeholder="Ingrese nombre de artículo, codigo de barras o proveedor">
+    <input class="article-input-menu" type="search" placeholder="Ingrese nombre de artículo, codigo de barras o proveedor" autofocus>
     <button class="article-button-menu" type="submit">Buscar</button>
   </form>
 </div>
+<div class="pop-view pop-view-close">
+  <div class="pop-view-panel">
+    <h3 class="close-modal-view article-button-menu">x</h3>
+    <h3 class="title">Agregar artículo</h3>
+    <form action="{{url_for("article_new")}}" method="post" class="container">
+      <div class="field-complete">
+        <label class="label">Nombre</label>
+        <input type="text" name="name" placeholder="Nombre de producto">
+      </div>
+      <div class="field-complete">
+        <label class="label">Categoria</label>
+        <input type="text" name="category" placeholder="Categoría">
+      </div>
+      <div class="field-complete">
+        <label class="label">Proveedor</label>
+        <input type="text" name="provider" placeholder="Proveedor">
+      </div>
+      <div class="field-complete">
+        <label class="label">SKU</label>
+        <input type="text" name="sku" placeholder="SKU">
+      </div>
+      <div class="field-complete">
+        <label class="label">Stock</label>
+        <input type="text" name="stock" placeholder="Stock">
+      </div>
+      <div class="field-complete">
+        <label class="label">Precio</label>
+        <input type="text" name="cost" placeholder="Precio">
+      </div>
+      <div class="field-complete">
+        <label class="label">IVA</label>
+        <input type="text" name="iva" placeholder="IVA">
+      </div>
+      <div class="field-complete">
+        <label class="label">% Ganancia</label>
+        <input type="text" name="gain" placeholder="% Ganancia">
+      </div>
+      <div class="field-complete">
+        <label class="label">Promo * cantidad</label>
+        <input type="text" name="promo" placeholder="Promoción por cantidad">
+      </div>
+      <div class="field-complete">
+        <label class="label">Activo</label>
+        <input type="checkbox" name="active" placeholder="Activo">
+      </div>
+      <div class="field-complete">
+        <label class="label">Descripción</label>
+        <textarea name="description" cols="100" rows="4" placeholder="Descripción"></textarea>
+      </div>
+        <button type="submit" class="article-button-menu">Crear</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
 {% if articles %}
-  <h3 style="text-align: center;">Listando articulos encontrados</h3>
-  {% for article in articles %}
-    <p>{{article}}</p>
-  {% endfor %}
+<table class="show-articles">
+  <caption>
+    <h3 style="text-align: center;">Listando articulos encontrados</h3>
+  </caption>
+  <tbody>
+    <tr>
+      {% for column in columns %}
+        <th class="show-articles-cell">{{column}}</th>
+      {% endfor %}
+    </tr>
+    {% for article in articles  %}
+    <tr>
+      {% for a in articles[article] %}
+      <td class="show-articles-cell">{{a}}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endif %}
+{% endblock %}
+{% block scripts %}
+	<script src="{{ url_for('static',filename='js/app.js') }}"></script>
 {% endblock %}
