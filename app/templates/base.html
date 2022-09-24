@@ -8,6 +8,7 @@
 	<link rel="shortcut icon" href="{{ url_for('static',filename='img/favicon.png' ) }}" type="image/x-icon">
 	<link rel="stylesheet" href="{{ url_for('static',filename='styles/normalize.css' ) }}" type="text/css">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/messages.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/index.css') }}">
 	{% block stylecss %}{% endblock %}
 	<script src="https://kit.fontawesome.com/7e1beb9434.js" crossorigin="anonymous"></script>
 	<title>GesVen{% block title %}{% endblock %}</title>
@@ -23,8 +24,8 @@
 	{% endwith %}
 	{% macro render_input(name_label,name,type='text') %}
 	<div class="field-complete">
-	  <label class="label">{{name_label}}</label>
-	  <input type="{{type}}" name="{{name}}" placeholder="{{name_label}}">
+		<label class="label">{{name_label}}</label>
+		<input type="{{type}}" name="{{name}}" placeholder="{{name_label}}">
 	</div>
 	{% endmacro %}
 	{% block content %}

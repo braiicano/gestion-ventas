@@ -1,11 +1,8 @@
 {% extends "base_app.html" %}
+{% block stylecss %}
+<link rel="stylesheet" href="{{ url_for('static',filename='styles/articles.css') }}">
+{% endblock %}
 {% block front_panel %}
-<style>
-  #article {
-    background-color: #888;
-    padding: .75em 0
-  }
-</style>
 <div class="sub-menu container">
   <a href="#">
     <p class="sub-button-menu open-modal-view">Agregar artículo</p>
@@ -39,28 +36,30 @@
 </div>
 </div>
 </div>
-{% if articles %}
-<table class="show-articles">
-  <caption>
-    <h3 style="text-align: center;">Listando articulos encontrados</h3>
-  </caption>
-  <tbody>
-    <tr>
-      {% for column in columns %}
-      <th class="show-articles-cell">{{column}}</th>
+<div class="show">
+  {% if articles %}
+  <table class="show-articles">
+    <caption>
+      <h3 style="text-align: center;">Listando articulos encontrados</h3>
+    </caption>
+    <tbody>
+      <tr>
+        {% for column in columns %}
+        <th class="show-articles-cell">{{column}}</th>
+        {% endfor %}
+      </tr>
+      {% for article in articles %}
+      <tr>
+        {% for a in articles[article] %}
+        <td class="show-articles-cell">{{a}}</td>
+        {% endfor %}
+      </tr>
       {% endfor %}
-    </tr>
-    {% for article in articles %}
-    <tr>
-      {% for a in articles[article] %}
-      <td class="show-articles-cell">{{a}}</td>
-      {% endfor %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endif %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
 {% endblock %}
 {% block scripts %}
-<script src="{{ url_for('static',filename='js/app.js') }}"></script>
+<script src="{{ url_for('static',filename='js/modal.js') }}"></script>
 {% endblock %}

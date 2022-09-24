@@ -1,120 +1,169 @@
-/* Valores default */
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap');
-:root{
-  --font: 17px;
-  --hover: rgb(178,200,255);
-  --title-hover: rgb(31 65 148);
-  --hover-a: rgba(198,250,255,.9);
-  --item-color: rgb(90,110,230);
-}
-html{
-  scroll-behavior: smooth;
-}
-*{
-  margin: 0;
-  padding: 0;
-  font-family: 'Oswald', sans-serif;
-  font-size: var(--font);
-  box-sizing: border-box;
-  color: #000;
-}
-h1{
-  font-size: 5em;
-}
-h2{font-size: 2em;}
-h3{font-size: 1.5em;}
-h4{font-size: .8em;}
-p{font-size: 1em;}
-a,b,i,input,button{
-  font-size: inherit;
-  text-decoration: none;
-}
-ul,li{list-style: none;}
-body{
-  /*background-color: #111;*/
-}
-img{
-  width: 100%;
-  height: 100%;
-}
-
-.container{
+@import url("root.css");
+.container {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.front-view{
+.front-view {
   width: 100vw;
   /*height: 30vh;*/
   margin-top: 5vh;
 }
-.form-view{
+.form-view {
   width: 100%;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
 }
-.form-container{
+.form-container {
   min-width: 22em;
-  width:40%;
+  width: 40%;
   height: 100%;
   border-radius: 1.2em;
-  padding: .7em;
+  padding: 0.7em;
   margin: 1em;
   text-align: center;
 }
-.form-container:hover, .form-container:focus-within{
+.form-container:hover,
+.form-container:focus-within {
   background-color: #555;
   box-shadow: 2px 2px 10px var(--hover);
   transition-duration: 0.32s;
 }
-.form-container:hover > .subtitle, .form-container:focus-within > .subtitle {
+.form-container:hover > .subtitle,
+.form-container:focus-within > .subtitle {
   color: #fff;
-  text-shadow: .1em .1em .3em #000;
+  text-shadow: 0.1em 0.1em 0.3em #000;
   transition-duration: 0.3s;
 }
-.title{
+.title {
   animation-duration: 5s;
   animation-name: pop;
   animation-iteration-count: infinite;
 }
-@keyframes pop{
-  0%{
+@keyframes pop {
+  0% {
     text-shadow: 0 0 0 var(--title-hover);
   }
-  50%{
+  50% {
     /*color: var(--hover);*/
-    text-shadow: .1em .1em 1em #000;
+    text-shadow: 0.1em 0.1em 1em #000;
   }
-  100%{
+  100% {
     text-shadow: 0 0 0 var(--title-hover);
   }
 }
-.subtitle{margin-bottom: .5em;}
-.form-item, .form-button{
-  margin: .55em 0;
-  width: 75%;
-  transition-duration: .2s;
+.subtitle {
+  margin-bottom: 0.5em;
+  text-align: center;
 }
-.form-item:focus-within{
+.form-item,
+.form-button {
+  margin: 0.55em 0;
+  width: 75%;
+  transition-duration: 0.2s;
+}
+.form-item:focus-within {
   background-color: var(--hover);
 }
-.form-button:hover{
+.form-button:hover {
   background-color: var(--title-hover);
   color: #fff;
 }
-.forget-password{
+.forget-password {
   color: var(--item-color);
 }
-.forget-password:hover{
+.forget-password:hover {
   color: var(--hover-a);
 }
-@media screen and (min-width: 800px) and (min-height: 400px){
-  .form-view{
+
+.work-panel {
+  width: 100vw;
+  height: auto;
+  position: fixed;
+}
+.menu-content {
+  width: 100vw;
+  height: 3em;
+  background-color: #555;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: center;
+  position:absolute;
+  top: 0;
+  left: 0;
+}
+.bar-item {
+  width: 6em;
+  text-align: center;
+}
+.bar-item:hover {
+  color: #fff;
+  transition-duration: 0.15s;
+}
+.sub-button-menu {
+  background-color: rgb(90, 75, 205);
+  box-shadow: 0.1em 0.1em 0.5em #fff;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  transition-duration: 0.2s;
+}
+.sub-button-menu:hover {
+  background-color: rgb(50, 65, 185);
+  color: #fff;
+  cursor: pointer;
+}
+.sub-button-menu:active{
+  background-color: rgb(40,50,130);
+  line-height: .9;
+}
+.field-complete {
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0.1em 0;
+}
+.label {
+  text-align: right;
+  width: 10em;
+  margin: 0 0.1em;
+}
+.label + input {
+  width: 50em;
+}
+.label + input:focus-within {
+  background-color: rgba(100, 100, 255, 0.5);
+}
+.sub-menu{
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100vw;
+  height: 3em;
+  background-color: #888;
+  position: absolute;
+  top: 3em;
+  left: 0;
+}
+.sub-input-menu{
+  width: 40em;
+}
+.show{
+  width: 100vw;
+  position: absolute;
+  top: 6em;
+  z-index: -1;
+}
+
+@media screen and (min-width: 800px) and (min-height: 400px) {
+  .form-view {
     height: 70vh;
   }
-  .form-container{
+  .form-container {
     height: 80%;
   }
-  }
+}
