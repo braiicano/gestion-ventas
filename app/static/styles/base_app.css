@@ -22,27 +22,27 @@
   color:#fff;
   transition-duration: .15s;
 }
-.disconnect,.article-button-menu{
+.disconnect,.sub-button-menu{
   background-color: rgb(90,75,205);
   box-shadow: .1em .1em .5em #fff;
   padding: .5em;
   border-radius: .5em;
   transition-duration: .2s;
 }
-.disconnect:hover,.article-button-menu:hover{
+.disconnect:hover,.sub-button-menu:hover{
   background-color: rgb(50,65,185);
   color: #fff;
   cursor: pointer;
 }
 
-.article-menu{
+.sub-menu{
   flex-direction: row;
   justify-content: space-around;
   width: 100vw;
   height: fit-content;
   background-color: #888;
 }
-.article-input-menu{
+.sub-input-menu{
   width: 40em;
 }
 

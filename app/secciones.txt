@@ -1,21 +1,6 @@
-############################################################################
-Ventas>
-  Nueva venta> [tipo de factura],[buscar articulo],[agregar articulo]
-               [listar articulos seleccionados]>(opciones de quitar y aumentar articulos)
-               [total articulos+total precio]
-               [boton de pago]
-  Buscar comprobante> [barra de busqueda]
-############################################################################
-Caja> []
-############################################################################
-Clientes> [ingresar cliente] [listar clientes] [modificar/borrar clientes]
-############################################################################
-Proveedores>
-############################################################################
-Estadisticas>
-############################################################################
-Articulos> [agregar articulos] [ver articulos] [modificar/borrar articulos]
-############################################################################
-Operaciones>
-############################################################################
-Administracion>
+crear una macro que cree la vista y html a partir de "agregar articulo"
+
+en la vista articulos, agregar boton de editar/eliminar, que aparezca
+una vista modal ya con los campos completos listos a editar o eliminar
+
+

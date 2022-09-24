@@ -5,8 +5,10 @@
 {% block title %}-Stock y ventas{% endblock %}
 {% block content %}
 <div class="menu-content">
-  <a href="{{ url_for("home",name="config") }}"><p class="bar-item" id="config">Hola: {{name}}</p></a>
-  <input type="text" id="checkers" list="checker_list" placeholder="Seleccione caja"/>
+  <a href="{{ url_for('home',name='config' ) }}">
+    <p class="bar-item" id="config">Hola: {{name}}</p>
+  </a>
+  <input type="text" id="checkers" list="checker_list" placeholder="Seleccione caja" />
   <datalist id="checker_list">
     <select id="elements" name="elements">
       <option value="Administrador" label="Administrador">
@@ -15,14 +17,24 @@
       <option value="Caja3" label="Caja3">
     </select>
   </datalist>
-  <a href="{{ url_for("home",name="sell") }}"><p class="bar-item" id="sell">Ventas</p></a>
-  <a href="{{ url_for("home",name="client") }}"><p class="bar-item" id="client">Clientes</p></a>
-  <a href="{{ url_for("home",name="provider") }}"><p class="bar-item" id="provider">Proveedores</p></a>
-  <a href="{{ url_for("home",name="article") }}"><p class="bar-item" id="article">Articulos</p></a>
-  <a href="{{ url_for("home",name="list") }}"><p class="bar-item" id="list">Listar</p></a>
-  <form action="{{ url_for("search") }}" method="get">
+  <a href="{{ url_for('home',name='sell' ) }}">
+    <p class="bar-item" id="sell">Ventas</p>
+  </a>
+  <a href="{{ url_for('home',name='client' ) }}">
+    <p class="bar-item" id="client">Clientes</p>
+  </a>
+  <a href="{{ url_for('home',name='provider' ) }}">
+    <p class="bar-item" id="provider">Proveedores</p>
+  </a>
+  <a href="{{ url_for('home',name='article' ) }}">
+    <p class="bar-item" id="article">Articulos</p>
+  </a>
+  <a href="{{ url_for('home',name='list' ) }}">
+    <p class="bar-item" id="list">Listar</p>
+  </a>
+  <form action="{{ url_for('search') }}" method="get">
     <input type="search" name='value' placeholder="¿Qué estás buscando?">
-    <button type="submit" style="display:contents"></button> 
+    <button type="submit" style="display:contents"></button>
   </form>
   <a href="{{ url_for('logout') }}">
     <p class="disconnect">Desconectar</p>

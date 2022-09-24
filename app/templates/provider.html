@@ -3,8 +3,17 @@
 <style>
   #provider{background-color: #888;padding: .75em 0}
 </style>
-<h2 style="text-align: center;"> Hola desde provider</h2>
-{% for i in db %}
-<p>{{i.username}}</p>
-{% endfor %}
+<div class="sub-menu container">
+  <a href="#">
+    <p class="sub-button-menu open-show-client">Ver proveedores</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-new-client">Registrar proveedor</p>
+  </a>
+  <form action="{{ url_for('search') }}" method='get'>
+    <input class="sub-input-menu" type="search"
+      placeholder="Ingrese nombre de proveedor" autofocus>
+    <button class="sub-button-menu" type="submit">Buscar</button>
+  </form>
+</div>
 {% endblock %}

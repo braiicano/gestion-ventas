@@ -3,8 +3,15 @@
 <style>
   #sell{background-color: #888;padding: .75em 0}
 </style>
-<h2 style="text-align: center;"> Hola desde sell</h2>
-{% for i in db %}
-<p>{{i.username}}</p>
-{% endfor %}
+<div class="sub-menu container">
+  <a href="#">
+    <p class="sub-button-menu open-sell-resume">Ventas del día</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-new-sell">Nueva venta</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-total-balance">Mis estadísticas</p>
+  </a>
+</div>
 {% endblock %}

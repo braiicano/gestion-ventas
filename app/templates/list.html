@@ -3,8 +3,19 @@
 <style>
   #list{background-color: #888;padding: .75em 0}
 </style>
-<h2 style="text-align: center;"> Hola desde list</h2>
-{% for i in db %}
-<p>{{i.username}}</p>
-{% endfor %}
+<div class="sub-menu container">
+  <a href="#">
+    <p class="sub-button-menu open-show-client">Ver clientes</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-show-article">Ver artículos</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-show-provider">Ver proveedores</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-show-sell">Ver ventas del día</p>
+  </a>
+  
+</div>
 {% endblock %}

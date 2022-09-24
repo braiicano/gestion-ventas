@@ -3,8 +3,18 @@
 <style>
   #config{background-color: #888;}
 </style>
-<h2 style="text-align: center;"> Hola desde config</h2>
-{% for i in db %}
-<p>{{i.username}}</p>
-{% endfor %}
+<div class="sub-menu container">
+  <a href="#">
+    <p class="sub-button-menu open-show-config">Modificar mis datos</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-new-checker">Alta cajero</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-delete-checker">Baja cajero</p>
+  </a>
+  <a href="#">
+    <p class="sub-button-menu open-show-balance">Balance de  cajas</p>
+  </a>
+</div>
 {% endblock %}
