@@ -1,185 +1,168 @@
-# Modules
-from datetime import datetime
-from flask import Flask, render_template, redirect, request, url_for, make_response, session, escape, flash, jsonify, g
+from flask import Flask, render_template, redirect, url_for, flash, request, g, session, escape
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime as dt
 from werkzeug.security import generate_password_hash, check_password_hash
+import os, datetime
 
-
-# Database directory connect
-import os
-dbdir = "sqlite:///" + \
-    os.path.abspath(os.getcwd()) + "/database.db"  # direccion de ddbb
-
-# App config
+dbdir = "sqlite:///" + os.path.abspath(os.getcwd()) + "/database.db"
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = dbdir
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.secret_key = 'mysecretkey'
 db = SQLAlchemy(app)
 
-# Class to create databases
+
+def lock(hash: str):
+    return generate_password_hash(hash, 'sha256')
+
+DATA = ['USERNAME','EMAIL','FISCAL_NAME','BUNISESS_NAME','PHONE','ADDRESS','CUIT','IIBB','BEGIN_DATE','ITEM','IVA','CHECKERS']
+
+class MYBUNISESS(db.Model):
+    ID = db.Column(db.Integer, primary_key=True)
+    USERNAME = db.Column(db.String(50), unique=True, nullable=False)
+    EMAIL = db.Column(db.String(50), unique=True, nullable=False)
+    PASSWORD = db.Column(db.String(100), nullable=False)
+    PHONE = db.Column(db.String(30))
+    ADDRESS = db.Column(db.String(255))
+    FISCAL_NAME = db.Column(db.String(50))
+    BUNISESS_NAME = db.Column(db.String(50))
+    CUIT = db.Column(db.Integer)
+    IIBB = db.Column(db.Integer)
+    BEGIN_DATE = db.Column(db.String(255))
+    ITEM = db.Column(db.Integer)
+    IVA = db.Column(db.Integer)
+    CHECKERS = db.Column(db.Integer)
+    CREATE_AT = db.Column(db.DateTime, default=dt.today().ctime())
+    TYPE_ACCOUNT = db.Column(db.Integer)
 
 
-class Users(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30), unique=True, nullable=False)
-    email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    datetime = db.Column(db.DateTime(), default=datetime.now())
-    # status = db.Column(db.Integer, nullable=False)
+def add_business(args):
+    return MYBUNISESS(USERNAME=args['username'], EMAIL=args['email'], PASSWORD=lock(args['password'],TYPE_ACCOUNT='Free'))
 
 
-class Create_Items(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-# CRUD
-
-
-def create(data):
-    hashed_pw = generate_password_hash(data['password'], method='sha256')
-    new_user = Users(
-        username=data['username'], email=data['email'], password=hashed_pw)  # ,status=1)
-    db.session.add(new_user)
-    db.session.commit()
-
-
-def check_data(data, value):
-    to_check = db.session.query(Users).all()
-    for i in to_check:
-        if data[value] == i.username or data[value] == i.email:
-            return True
-    return False
-
-
-def showme():
-    queries = db.session.query(Users).all()
-    print(queries)
-
-
-def update(data):
-    pass
-
-
-def delete(data):
-    pass
-
-
-def checker(data):
-    user = Users.query.filter_by(username=data['username']).first()
-    try:
-        if user and check_password_hash(user.password, data['password']):
+def check_db_users(data):
+    print(data)
+    user = MYBUNISESS.query.filter_by(USERNAME=data['username']).first()
+    print(user)
+    if not user:
+        email = MYBUNISESS.query.filter_by(EMAIL=data['email']).first()
+        print(email)
+        if not email:
             return True
         else:
             return False
-    except:
+    else:
         return False
 
-# App functions
+
+def verify_user(args):
+    query = MYBUNISESS.query.filter_by(USERNAME=args['username']).first()
+    if query and check_password_hash(query.PASSWORD, args['password']):
+        session["new_user"] = query.USERNAME
+        return True
+    else:
+        return False
 
 
-@app.before_request
+def create_dict(args) -> dict:
+    key = ['Nombre de usuario', 'Email', 'Nombre fiscal', 'Nombre comercial', 'Teléfono', 'Dirección',
+           'CUIT', 'IIBB', 'Fecha de inicio', 'Rubro', 'IVA', 'Cajeros', 'Creación de cuenta', 'Tipo de cuenta']
+
+    return {key[0]: args.USERNAME,
+            key[1]:args.EMAIL,
+            key[2]:args.FISCAL_NAME,
+            key[3]:args.BUNISESS_NAME,
+            key[4]:args.PHONE,
+            key[5]:args.ADDRESS,
+            key[6]:args.CUIT,
+            key[7]:args.IIBB,
+            key[8]:args.BEGIN_DATE,
+            key[9]:args.ITEM,
+            key[10]:args.IVA,
+            key[11]:args.CHECKERS,
+            key[12]:args.CREATE_AT,
+            key[13]:args.TYPE_ACCOUNT,
+            }
+
+@ app.before_request
 def before_request():
-    if "new_session" in session:
-        g.user = session['new_session']
+    if 'new_user' in session:
+        g.user = session['new_user']
     else:
         g.user = None
 
 
-@app.route("/")
+@ app.route('/')
 def index():
-    try:
-        if session['new_session'] != None:
-            return redirect(url_for('home'))
-    except:
-        return render_template("index.html")
-
-
-@app.route("/singup", methods=['POST'])
-def singup():
-    if request.method == 'POST':
-        if request.form['password'] == request.form['confirm-password']:
-            if not check_data(request.form, 'username'):
-                if not check_data(request.form, 'email'):
-                    create(request.form)
-                    session['new_session'] = request.form['username']
-                    return redirect(url_for('home'))
-                else:
-                    flash('El email ya se encuentra registrado.', 'alert-message')
-                    return redirect('/')
-            else:
-                flash('El usuario "{}" ya existe, elige otro nombre.'.format(
-                    request.form['username']), 'alert-message')
-                return redirect('/')
-        else:
-            flash('Las contraseñas no coinciden.', 'alert-message')
-            return redirect('/')
-    else:
-        return redirect("error")
-
-
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        if checker(request.form):
-            session['new_session'] = request.form['username']
-            return redirect(url_for('home'))
-        else:
-            flash(
-                "Error en credenciales, usuario y/o contraseña son invalidos", 'alert-message')
-            return redirect("/")
-    else:
-        return redirect('/')
-
-
-@app.route("/home")
-def home():
     if g.user:
-        iterable = request.args.get('name')
-        queries = db.session.query(Users).all()
-        if not iterable:
-            return render_template('app.html', name=g.user, db=queries)
-        return render_template(f'{iterable}.html', name=g.user, articles=temp_list, columns=ARTICLE_ELEMENTS, db= queries)
+        return redirect(url_for('application'))
     else:
-        flash("Debes iniciar sesión primero.", "alert-message")
-        return redirect('/')
+        return redirect(url_for('signup'))
 
 
-# agregar plantilla para creacion de articulos
-@app.route("/article_new", methods=['POST'])
-def article_new():
-    temp_list[request.form['name']] = list()
-    for article in request.form:
-        temp_list[request.form['name']].append(request.form[article])
-    print(temp_list)
-    return redirect(url_for('home', name='article'))
+@ app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'GET':
+        return render_template('signup.html')
+    elif request.method == 'POST':
+        if request.form['password'] == request.form['re-password']:
+            if check_db_users(request.form):
+                db.session.add(add_business(request.form))
+                db.session.commit()
+                session['new_user'] = request.form['username']
+                flash("Te registraste correctamente", "success")
+                return redirect(url_for('index'))
+            else:
+                flash("Usuario y/o email son existentes.", "warning")
+        else:
+            flash("Las contraseñas no coinciden", "danger")
+        return redirect(url_for('index'))
 
 
-@app.route("/search")  # mostrar vista de elemento encontrado o no
-def search():
-    # realizar consulta
-    return redirect(url_for('home', name='article'))
-
-
-@app.errorhandler(404)
-def error(e):
-    return render_template("error.html"), 404
-
-
-@app.errorhandler(405)
-def method_not_allowed(e):
-    return redirect('error')
+@ app.route('/login', methods=['POST'])
+def login():
+    if not g.user:
+        if request.method == 'POST':
+            if verify_user(request.form):
+                flash(f"Hola {request.form['username']}", "success")
+                return redirect(url_for('index'))
+            flash("Usuario y/o contraseña no son correctos", "danger")
+            return redirect(url_for('index'))
 
 
 @app.route('/logout')
-def logout(name='new_session'):
-    session.pop(name, None)
-    flash("Sesión cerrada correctamente", "leave-session")
-    return redirect('/')
+def logout():
+    session.pop('new_user', None)
+    flash("Se ha cerrado sesión con éxito", "success")
+    return redirect(url_for('index'))
 
 
-app.secret_key = "Santino2015Benicio19"
+@app.route('/app')
+def application():
+    if g.user:
+        return render_template('app.html', login=True)
+    flash("Debes iniciar sesión primero", "danger")
+    return redirect(url_for("signup"))
+
+
+@app.route('/app/admin')
+def admin():
+    if g.user:
+        user = create_dict(MYBUNISESS.query.filter_by(USERNAME=g.user).first())
+        return render_template('admin.html', login=True, user=user,data=DATA)
+    flash("Debes iniciar sesión primero", "danger")
+    return redirect(url_for("signup"))
+
+@app.route('/update/admin', methods=['POST'])
+def update_admin():
+    print(request.form)
+    return redirect(url_for('application'))
+
+@app.errorhandler(404)
+def error_handler(e):
+    return render_template('error.html'), 404
+
+
 if __name__ == '__main__':
     db.create_all()
-    temp_list = dict()
-    ARTICLE_ELEMENTS = ['Nombre', 'Categoría', 'Proveedor', 'SKU', 'Stock',
-                        'Precio', 'IVA', 'Ganancia', 'Promo', 'En venta', 'Descripción']
-    app.run(debug=True, port=8000)
+    app.run(debug=True, port=8080)

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title%}-Admin{% endblock %}
+{% block body %}
+
+<div class="container">
+    <form action="{{url_for('update_admin')}}" method="post" class="row">
+        <fieldset class="col-xxl-4">
+            <legend>Panel de administrador</legend>
+        </fieldset>
+        {% set count = 0 %}
+        {% for k,v in user.items() %}
+        {% set count = count + 1 %}
+        <div class="form-group col-md-4">
+            {%if 'usuario' in k or 'Creación' in k%}<fieldset disabled>{%endif%}
+                <div class="form-floating">
+                    <input type={%if 'Fecha' in k%}"date"{% elif 'CUIT' in k or 'Teléfono' in k %}"number"{%else%}"text"{%endif%} class="form-control" id="floatingInput"
+                    placeholder="{{k}}" {%if v%}value="{{v}}"{%endif%} name="{{data[k]}}">
+                    <label for="floatingInput">{{k}}</label>
+                </div>
+                {%if 'usuario' in k or 'Creación' in k%}</fieldset>{%endif%}
+                </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-info col-md-4">Guardar cambios</button>
+    </form>
+</div>
+{% endblock %}

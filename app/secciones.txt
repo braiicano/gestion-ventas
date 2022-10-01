@@ -1,6 +1,0 @@
-crear una macro que cree la vista y html a partir de "agregar articulo"
-
-en la vista articulos, agregar boton de editar/eliminar, que aparezca
-una vista modal ya con los campos completos listos a editar o eliminar
-
-
