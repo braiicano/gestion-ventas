@@ -2,7 +2,8 @@ from flask import Flask, render_template, redirect, url_for, flash, request, g, 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as dt
 from werkzeug.security import generate_password_hash, check_password_hash
-import os, datetime
+import os
+import datetime
 
 dbdir = "sqlite:///" + os.path.abspath(os.getcwd()) + "/database.db"
 app = Flask(__name__)
@@ -15,9 +16,20 @@ db = SQLAlchemy(app)
 def lock(hash: str):
     return generate_password_hash(hash, 'sha256')
 
-DATA = ['USERNAME','EMAIL','FISCAL_NAME','BUNISESS_NAME','PHONE','ADDRESS','CUIT','IIBB','BEGIN_DATE','ITEM','IVA','CHECKERS']
+
+DATA = ['USERNAME', 'EMAIL', 'FISCAL_NAME', 'BUNISESS_NAME', 'PHONE',
+        'ADDRESS', 'CUIT', 'IIBB', 'BEGIN_DATE', 'ITEM', 'IVA', 'CHECKERS']
+
+
+class TYPE_USER(db.Model):
+    __tablename__ = 'TYPE_USER'
+    ID_Rel = db.relationship('MYBUNISESS', backref='onwer', lazy='dynamic')
+    ID = db.Column(db.Integer, primary_key=True)
+    TYPE = db.Column(db.String(10))
+
 
 class MYBUNISESS(db.Model):
+    __tablename__ = 'MYBUNISESS'
     ID = db.Column(db.Integer, primary_key=True)
     USERNAME = db.Column(db.String(50), unique=True, nullable=False)
     EMAIL = db.Column(db.String(50), unique=True, nullable=False)
@@ -32,18 +44,18 @@ class MYBUNISESS(db.Model):
     ITEM = db.Column(db.Integer)
     IVA = db.Column(db.Integer)
     CHECKERS = db.Column(db.Integer)
-    CREATE_AT = db.Column(db.DateTime, default=dt.today().ctime())
-    TYPE_ACCOUNT = db.Column(db.Integer)
+    CREATE_AT = db.Column(db.DateTime, default=dt.today())
+    TYPE_ACCOUNT = db.Column(db.Integer, db.ForeignKey(
+        'TYPE_USER.ID'))
 
 
 def add_business(args):
-    return MYBUNISESS(USERNAME=args['username'], EMAIL=args['email'], PASSWORD=lock(args['password'],TYPE_ACCOUNT='Free'))
+    return MYBUNISESS(USERNAME=args['username'], EMAIL=args['email'], PASSWORD=lock(args['password']), TYPE_ACCOUNT=1)
 
 
 def check_db_users(data):
-    print(data)
     user = MYBUNISESS.query.filter_by(USERNAME=data['username']).first()
-    print(user)
+
     if not user:
         email = MYBUNISESS.query.filter_by(EMAIL=data['email']).first()
         print(email)
@@ -67,22 +79,24 @@ def verify_user(args):
 def create_dict(args) -> dict:
     key = ['Nombre de usuario', 'Email', 'Nombre fiscal', 'Nombre comercial', 'Teléfono', 'Dirección',
            'CUIT', 'IIBB', 'Fecha de inicio', 'Rubro', 'IVA', 'Cajeros', 'Creación de cuenta', 'Tipo de cuenta']
-
+    val = args.TYPE_ACCOUNT
+    type_user = TYPE_USER.query.filter_by(ID=val).first()
     return {key[0]: args.USERNAME,
-            key[1]:args.EMAIL,
-            key[2]:args.FISCAL_NAME,
-            key[3]:args.BUNISESS_NAME,
-            key[4]:args.PHONE,
-            key[5]:args.ADDRESS,
-            key[6]:args.CUIT,
-            key[7]:args.IIBB,
-            key[8]:args.BEGIN_DATE,
-            key[9]:args.ITEM,
-            key[10]:args.IVA,
-            key[11]:args.CHECKERS,
-            key[12]:args.CREATE_AT,
-            key[13]:args.TYPE_ACCOUNT,
+            key[1]: args.EMAIL,
+            key[2]: args.FISCAL_NAME,
+            key[3]: args.BUNISESS_NAME,
+            key[4]: args.PHONE,
+            key[5]: args.ADDRESS,
+            key[6]: args.CUIT,
+            key[7]: args.IIBB,
+            key[8]: args.BEGIN_DATE,
+            key[9]: args.ITEM,
+            key[10]: args.IVA,
+            key[11]: args.CHECKERS,
+            key[12]: args.CREATE_AT,
+            key[13]: type_user.TYPE,
             }
+
 
 @ app.before_request
 def before_request():
@@ -149,14 +163,30 @@ def application():
 def admin():
     if g.user:
         user = create_dict(MYBUNISESS.query.filter_by(USERNAME=g.user).first())
-        return render_template('admin.html', login=True, user=user,data=DATA)
+        return render_template('admin.html', login=True, user=user, data=DATA)
     flash("Debes iniciar sesión primero", "danger")
     return redirect(url_for("signup"))
 
+
 @app.route('/update/admin', methods=['POST'])
 def update_admin():
-    print(request.form)
+    d = request.form
+    u = MYBUNISESS.query.filter_by(USERNAME=g.user).first()
+    u.EMAIL=d['EMAIL'] if u.EMAIL!=d['EMAIL'] else u.EMAIL
+    u.FISCAL_NAME=d['FISCAL_NAME'] if u.FISCAL_NAME!=d['FISCAL_NAME'] else u.FISCAL_NAME
+    u.BUNISESS_NAME=d['BUNISESS_NAME'] if u.BUNISESS_NAME!=d['BUNISESS_NAME'] else u.BUNISESS_NAME
+    u.PHONE=d['PHONE'] if u.PHONE!=d['PHONE'] else u.PHONE
+    u.ADDRESS=d['ADDRESS'] if u.ADDRESS!=d['ADDRESS'] else u.ADDRESS
+    u.CUIT=d['CUIT'] if u.CUIT!=d['CUIT'] else u.CUIT
+    u.IIBB=d['IIBB'] if u.IIBB!=d['IIBB'] else u.IIBB
+    u.BEGIN_DATE=d['BEGIN_DATE'] if u.BEGIN_DATE!=d['BEGIN_DATE'] else u.BEGIN_DATE
+    u.ITEM=d['ITEM'] if u.ITEM!=d['ITEM'] else u.ITEM
+    u.IVA=d['IVA'] if u.IVA!=d['IVA'] else u.IVA
+    u.CHECKERS=d['CHECKERS'] if u.CHECKERS!=d['CHECKERS'] else u.CHECKERS
+    db.session.add(u)
+    db.session.commit()
     return redirect(url_for('application'))
+
 
 @app.errorhandler(404)
 def error_handler(e):
