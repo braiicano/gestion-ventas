@@ -1,5 +1,26 @@
 {% extends "layout.html" %}
 {% block title %}-App{% endblock %}
 {% block body %}
-
+<div class="container row">
+    <h1 class="col-xx-4">Hola {{g.user}}</h1>
+</div>
+{% if change %}
+<div class="container">
+    <h3> Configuremos tus datos de administrador </h3>
+    <p> Ingrese para continuar: </p>
+    <form action="{{url_for('update_admin')}}" method="post" class="form-group row">
+        {% for k,v in data.items() %}
+        <div class="form-group col-md-4 mt-1">
+            <div class="form-floating">
+                <input type={%if 'Fecha' in k%}"date"{% elif 'CUIT' in k or 'Teléfono' in k
+                    %}"number"{%else%}"text"{%endif%} class="form-control" id="floatingInput" placeholder="{{k}}" {%if
+                    v%}value="{{admin[loop.index0]}}" {%endif%} name="{{data[loop.index0]}}">
+                <label for="floatingInput">{{k}}</label>
+            </div>
+        </div>
+        {% endfor%}
+        <button type="submit" class="btn btn-info col-md-4 mt-2">Guardar cambios</button>
+    </form>
+</div>
+{% endif%}
 {% endblock %}
