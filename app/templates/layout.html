@@ -17,7 +17,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
-    <div class="alert alert-dismissible alert-{{category}}" style="text-align:center">
+    <div class="alert alert-dismissible alert-{{category}} mb-0" style="text-align:center">
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         <h4 class="alert-heading">{{message}}</h4>
     </div>
@@ -27,50 +27,69 @@
     {% if g.user %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary" role="tablist">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{url_for('admin')}}"role="tab">Gesven</a>
+            <a class="navbar-brand" href="{{url_for('index')}}" role="tab">{%if g.check%}{{g.user}}{%else%}Bienvenido{%endif%}</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
                 aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            {% if g.check %}
             <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#sell" role="tab">Ventas
+                        <a class="nav-link {%if title == 'Caja'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='check')}}" role="tab">Caja</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {%if title == 'Ventas'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='sell')}}" role="tab">Ventas
                             <span class="visually-hidden">(current)</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#client" role="tab">Clientes</a>
+                        <a class="nav-link {%if title == 'Clientes'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='clients')}}" role="tab">Clientes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#provider" role="tab">Proveedores</a>
+                        <a class="nav-link {%if title == 'Proveedores'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='providers')}}" role="tab">Proveedores</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#article" role="tab">Artículos</a>
+                        <a class="nav-link {%if title == 'Artículos'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='articles')}}" role="tab">Artículos</a>
                     </li>
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                        <a class="nav-link dropdown-toggle {%if title == 'Listas'%}active{%endif%}" data-bs-toggle="dropdown" href="#" role="button"
                             aria-haspopup="true" aria-expanded="false">Listas</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Precios</a>
-                            <a class="dropdown-item" href="#">Artículos</a>
-                            <a class="dropdown-item" href="#">Ventas del día</a>
-                            <a class="dropdown-item" href="#">Clientes</a>
-                            <a class="dropdown-item" href="#">Proveedores</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='costs')}}">Precios</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='articles')}}">Artículos</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='sells')}}">Ventas del día</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='clients')}}">Clientes</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='providers')}}">Proveedores</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Estadísticas</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='stadistics')}}">Estadísticas</a>
                         </div>
                     </li>
                 </ul>
-                <form class="d-flex">
-                    <input class="form-control me-sm-3" type="text" placeholder="Ingrese item a buscar">
-                    <button class="btn btn-secondary me-sm-2" type="submit">Buscar</button>
+                {% if g.check %}
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false" style="color:#fff">{{g.check}}</a>
+                        <div class="dropdown-menu" style="">
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='stadistics')}}">Ver estadisticas</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='modify')}}">Modificar datos</a>
+                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='admin')}}">Panel administrador</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{url_for('checker',option='logout')}}">Cerrar caja</a>
+                        </div>
+                    </li>
+                </ul>
+                {% endif %}
+                {% endif %}
+                <div class="d-flex">
+                    <a href="{{url_for('index')}}" class="btn btn-primary">Inicio</a>
                     <a href="{{url_for('logout')}}" class="btn btn-outline-secondary">Salir</a>
-                </form>
+                </div>
             </div>
         </div>
     </nav>
-    <hr class="border border-primary border-3 opacity-50 mb-3">
 
     {% endif %}
     {% block body %}
@@ -80,6 +99,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
         crossorigin="anonymous"></script>
+    {% block scriptjs %}
+    {% endblock %}
 </body>
 
 </html>

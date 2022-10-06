@@ -25,7 +25,8 @@ def lock(hash: str):
 
 DATA = ['USERNAME', 'EMAIL', 'FISCAL_NAME', 'BUSINESS_NAME', 'PHONE',
         'ADDRESS', 'CUIT', 'IIBB', 'BEGIN_DATE', 'ITEM', 'IVA', 'CHECKERS']
-CHECK_DATA = ['NAME', 'SURNAME', 'BIRTH_DAY', 'ADDRESS', 'PHONE', 'EMAIL','TYPE_USER','PIN']
+CHECK_DATA = ['NAME', 'SURNAME', 'BIRTH_DAY',
+              'ADDRESS', 'PHONE', 'EMAIL', 'TYPE_USER', 'PIN']
 
 
 class BASE(db.Model):
@@ -33,7 +34,7 @@ class BASE(db.Model):
     ID = db.Column(db.Integer, primary_key=True)
     NAME = db.Column(db.String(50), nullable=False)
     SURNAME = db.Column(db.String(50), nullable=False)
-    BIRTH_DAY = db.Column(db.Date)
+    BIRTH_DAY = db.Column(db.String(255))
     ADDRESS = db.Column(db.String(50))
     PHONE = db.Column(db.String(50))
     EMAIL = db.Column(db.String(50))
@@ -52,7 +53,8 @@ class ARTICLES(db.Model):
     IVA = db.Column(db.Integer, default=0)
     SALE = db.Column(db.Integer, default=1)  # where 0=no active, 1=active
     LAST_UPDATE = db.Column(db.DateTime, default=dt.today())
-    BUSINESS_REF = db.Column(db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
+    BUSINESS_REF = db.Column(
+        db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
     #IMAGE = db.Column(db.BLOB)
 
 
@@ -100,24 +102,40 @@ class CLIENTS(BASE):
 class CHECKERS(BASE):
     __tablename__ = 'CHECKERS'
     TYPE_USER = db.Column(db.Integer, nullable=False)  # If 1=admin,2=check
-    BUSINESS_REF = db.Column(db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
+    BUSINESS_REF = db.Column(
+        db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
     PIN = db.Column(db.Integer, nullable=False)
 
 
-def add_checker(args=None,var=2):
+class REGISTER_OC(db.Model):
+    __tablename__ = 'REGISTER_OC'
+    ID = db.Column(db.Integer, primary_key=True)
+    NAME_CHECK = db.Column(db.Integer, db.ForeignKey('CHECKERS.ID'))
+    DATE_OPEN = db.Column(db.DateTime)
+    DATE_CLOSE = db.Column(db.DateTime)
+    AMOUNT_OPEN = db.Column(db.Integer)
+    AMOUNT_CLOSE = db.Column(db.Integer)
+    AMOUNT_TOTAL = db.Column(db.Integer)
+    BUSINESS_REF = db.Column(
+        db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
+
+
+def add_checker(args=None, var=2):
     u = MYBUSINESS.query.filter_by(USERNAME=args['username']).first()
     nu = True
     if 'name' in args:
         c = CHECKERS(NAME=args['name'], SURNAME=args['surname'],
-                    BIRTH_DAY=args['birthday'], ADDRESS=args['address'],
-                    PHONE=args['phone'], EMAIL=args['email'], TYPE_USER=var,
-                    BUSINESS_REF=u.USERNAME, PIN=args['pin'])
+                     BIRTH_DAY=args['birthday'], ADDRESS=args['address'],
+                     PHONE=args['phone'], EMAIL=args['email'], TYPE_USER=var,
+                     BUSINESS_REF=u.USERNAME, PIN=args['pin'])
     else:
-        c = CHECKERS(NAME='Tu nombre',SURNAME='Tu apellido',BUSINESS_REF=u.USERNAME,TYPE_USER=1,PIN=ra())
+        c = CHECKERS(NAME='Tu nombre', SURNAME='Tu apellido',
+                     BUSINESS_REF=u.USERNAME, TYPE_USER=1, PIN=ra())
         nu = False
     db.session.add(c)
     db.session.commit()
     return nu
+
 
 def add_business(args):
     b = MYBUSINESS(USERNAME=args['username'], EMAIL=args['email'],
@@ -172,8 +190,8 @@ def create_user_dict(args) -> dict:
 
 
 def create_checker_dict(args):
-    key = ['Nombre de cajero', 'Apellido de cajero',
-           ' Fecha de cumpleaños', 'Domicilio', 'Teléfono', 'Email', 'Tipo', 'Pin de accesso']
+    key = ['Nombre', 'Apellido',
+           ' Fecha de nacimiento', 'Domicilio', 'Teléfono', 'Email', 'Tipo', 'Pin de accesso']
     if args:
         return {
             key[0]: args.NAME,
@@ -186,39 +204,49 @@ def create_checker_dict(args):
             key[7]: args.PIN
         }
     else:
-        return{
-            key[0]:CHECK_DATA[0],
-            key[1]:CHECK_DATA[1],
-            key[2]:CHECK_DATA[2],
-            key[3]:CHECK_DATA[3],
-            key[4]:CHECK_DATA[4],
-            key[5]:CHECK_DATA[5],
-            key[6]:CHECK_DATA[6],
-            key[7]:CHECK_DATA[7],
-
+        return {
+            key[0]: CHECK_DATA[0],
+            key[1]: CHECK_DATA[1],
+            key[2]: CHECK_DATA[2],
+            key[3]: CHECK_DATA[3],
+            key[4]: CHECK_DATA[4],
+            key[5]: CHECK_DATA[5],
+            key[6]: CHECK_DATA[6],
+            key[7]: CHECK_DATA[7],
         }
+
 
 @ app.before_request
 def before_request():
+    print(session)
+    # print(g.idOpen)
     if 'new_user' in session:
         g.user = session['new_user']
     else:
         g.user = None
+        g.check = None
+        g.idOpen = None
+    if 'checker' in session:
+        g.check = session['checker']
+    else:
+        g.check = None
+    if 'idOpen' in session:
+        g.idOpen = session['idOpen']
+    else:
+        g.idOpen = None
 
 
 @ app.route('/')
 def index():
     if g.user:
-        return redirect(url_for('application'))
+        return redirect(url_for('User', user=g.user))
     else:
-        return redirect(url_for('signup'))
-
-
-@ app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'GET':
         return render_template('signup.html')
-    elif request.method == 'POST':
+
+
+@ app.route('/signup', methods=['POST'])
+def signup():
+    if request.method == 'POST':
         if request.form['password'] == request.form['re-password']:
             if check_db_users(request.form):
                 add_business(request.form)
@@ -237,7 +265,6 @@ def login():
     if not g.user:
         if request.method == 'POST':
             if verify_user(request.form):
-                flash(f"Hola {request.form['username']}", "success")
                 return redirect(url_for('index'))
             flash("Usuario y/o contraseña no son correctos", "danger")
             return redirect(url_for('index'))
@@ -246,57 +273,173 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('new_user', None)
+    session.pop('checker', None)
     flash("Se ha cerrado sesión con éxito", "success")
     return redirect(url_for('index'))
 
 
-@app.route('/app')
-def application():
-    if g.user:
-        check = CHECKERS.query.filter_by(BUSINESS_REF=g.user).first()
-        if 'Tu nombre' in check.NAME:
-            #Pasar valores de CHECK en modo lista para recorrer
-            print("Cambiar nombre")
-            return render_template("app.html",change=True,data=create_checker_dict(None),admin=check)
-            
-    flash("Debes iniciar sesión primero", "danger")
-    return redirect(url_for("signup"))
-
-
-@app.route('/app/admin')
-def admin():
-    if g.user:
-        user = create_user_dict(
-            MYBUSINESS.query.filter_by(USERNAME=g.user).first())
-        return render_template('admin.html', user=user, data=DATA)
-    flash("Debes iniciar sesión primero", "danger")
-    return redirect(url_for("signup"))
-
-
-@app.route('/update/admin', methods=['POST'])
+@app.route('/admin/panel', methods=['POST'])
 def update_admin():
     d = request.form
-    u = MYBUSINESS.query.filter_by(USERNAME=g.user).first()
-    u.EMAIL = d['EMAIL'] if u.EMAIL != d['EMAIL'] else u.EMAIL
-    u.FISCAL_NAME = d['FISCAL_NAME'] if u.FISCAL_NAME != d['FISCAL_NAME'] else u.FISCAL_NAME
-    u.BUSINESS_NAME = d['BUSINESS_NAME'] if u.BUSINESS_NAME != d['BUSINESS_NAME'] else u.BUSINESS_NAME
-    u.PHONE = d['PHONE'] if u.PHONE != d['PHONE'] else u.PHONE
-    u.ADDRESS = d['ADDRESS'] if u.ADDRESS != d['ADDRESS'] else u.ADDRESS
-    u.CUIT = d['CUIT'] if u.CUIT != d['CUIT'] else u.CUIT
-    u.IIBB = d['IIBB'] if u.IIBB != d['IIBB'] else u.IIBB
-    u.BEGIN_DATE = d['BEGIN_DATE'] if u.BEGIN_DATE != d['BEGIN_DATE'] else u.BEGIN_DATE
-    u.ITEM = d['ITEM'] if u.ITEM != d['ITEM'] else u.ITEM
-    u.IVA = d['IVA'] if u.IVA != d['IVA'] else u.IVA
-    u.CHECKERS = d['CHECKERS'] if u.CHECKERS != d['CHECKERS'] else u.CHECKERS
-    db.session.add(u)
-    db.session.commit()
-    return redirect(url_for('application'))
+    ud = False
+    try:
+        if d['NAME']:
+            u = CHECKERS.query.filter_by(BUSINESS_REF=g.user).first()
+            u.NAME = d['NAME'] if u.NAME != d['NAME'] else u.NAME
+            u.SURNAME = d['SURNAME'] if u.SURNAME != d['SURNAME'] else u.SURNAME
+            u.BIRTH_DAY = d['BIRTH_DAY'] if u.BIRTH_DAY != d['BIRTH_DAY'] else u.BIRTH_DAY
+            u.ADDRESS = d['ADDRESS'] if u.ADDRESS != d['ADDRESS'] else u.ADDRESS
+            u.PHONE = d['PHONE'] if u.PHONE != d['PHONE'] else u.PHONE
+            u.EMAIL = d['EMAIL'] if u.EMAIL != d['EMAIL'] else u.EMAIL
+            ud = True
+    except:
+        c = CHECKERS.query.filter_by(NAME=g.check).first()
+        if c.TYPE_USER == 1:
+            u = MYBUSINESS.query.filter_by(USERNAME=g.user).first()
+            u.EMAIL = d['EMAIL'] if u.EMAIL != d['EMAIL'] else u.EMAIL
+            u.FISCAL_NAME = d['FISCAL_NAME'] if u.FISCAL_NAME != d['FISCAL_NAME'] else u.FISCAL_NAME
+            u.BUSINESS_NAME = d['BUSINESS_NAME'] if u.BUSINESS_NAME != d['BUSINESS_NAME'] else u.BUSINESS_NAME
+            u.PHONE = d['PHONE'] if u.PHONE != d['PHONE'] else u.PHONE
+            u.ADDRESS = d['ADDRESS'] if u.ADDRESS != d['ADDRESS'] else u.ADDRESS
+            u.CUIT = d['CUIT'] if u.CUIT != d['CUIT'] else u.CUIT
+            u.IIBB = d['IIBB'] if u.IIBB != d['IIBB'] else u.IIBB
+            u.BEGIN_DATE = d['BEGIN_DATE'] if u.BEGIN_DATE != d['BEGIN_DATE'] else u.BEGIN_DATE
+            u.ITEM = d['ITEM'] if u.ITEM != d['ITEM'] else u.ITEM
+            u.IVA = d['IVA'] if u.IVA != d['IVA'] else u.IVA
+            ud = True
+    finally:
+        if ud:
+            db.session.add(u)
+            db.session.commit()
+            flash("Cambios realizados con éxito", "success")
+        else:
+            flash("No tenes permisos para modificar esta sección", "warning")
+        return redirect(url_for('index'))
 
 
-@app.route('/app/update', methods=['POST'])
-def update_checker():
-    print(request.form)
-    return redirect(url_for('index'))
+@app.route('/checker/<string:option>', methods=['GET', 'POST'])
+def checker(option='logout'):
+    if option == 'login' and request.method == 'POST':
+        r = request.form
+        name = r['CHECKER'].split(' ')[0] if len(r['CHECKER'].split(
+            ' ')) <= 2 else r['CHECKER'].split(' ')[0]+' ' + r['CHECKER'].split(' ')[1]
+        surname = r['CHECKER'].split(' '[1]) if len(
+            r['CHECKER']) <= 2 else r['CHECKER'].split(' ')[-1]
+        c = CHECKERS.query.filter_by(BUSINESS_REF=g.user).filter_by(
+            NAME=name).filter_by(SURNAME=surname).filter_by(PIN=r['PIN']).first()
+        if c:
+            g.check = session['checker'] = name
+            flash(f"Hola, {g.check} debes abrir caja", "success")
+            return redirect(url_for('User', user=g.user, checker=g.check, action='check'))
+        flash("Pin ingresado es incorrecto, si olvidaste el Pin contactate con el administrador", "danger")
+        return redirect(url_for('index'))
+    if option == 'logout' and request.method == 'GET':
+        session.pop('checker', None)
+        return redirect(url_for('index'))
+    if option == 'open' and request.method == 'POST':
+        r = request.form
+        if g.idOpen:
+            flash("Ya abrió caja", "danger")
+        else:
+            qoc = REGISTER_OC.query.filter_by(
+                NAME_CHECK=g.check).filter_by(BUSINESS_REF=g.user).all()
+            try:
+                if qoc[-1].DATE_CLOSE:
+                    q = REGISTER_OC(NAME_CHECK=g.check, DATE_OPEN=dt.today(),
+                                    AMOUNT_OPEN=r['open'], BUSINESS_REF=g.user)
+                    db.session.add(q), db.session.commit()
+                    g.idOpen = session['idOpen'] = q.ID
+                    flash("Caja abierta con éxito", "success")
+                else:
+                    g.idOpen = session['idOpen'] = qoc[-1].ID
+            except IndexError:
+                q = REGISTER_OC(NAME_CHECK=g.check, DATE_OPEN=dt.today(),
+                                AMOUNT_OPEN=r['open'], BUSINESS_REF=g.user)
+                db.session.add(q), db.session.commit()
+                g.idOpen = session['idOpen'] = q.ID
+                flash("Caja abierta con éxito", "success")
+        return redirect(url_for('index'))
+    if option == 'close' and request.method == 'POST':
+        r = request.form
+        if g.idOpen:
+            q = REGISTER_OC.query.filter_by(ID=g.idOpen).first()
+            q.DATE_CLOSE = dt.today()
+            q.AMOUNT_CLOSE = r['close']
+            q.AMOUNT_TOTAL = q.AMOUNT_OPEN - float(r['close'])
+            db.session.add(q), db.session.commit()
+            session.pop('idOpen', None)
+            flash("Caja cerró con éxito", "success")
+        else:
+            flash("No se abrió caja aún", "warning")
+        return redirect(url_for('index'))
+
+
+def admin_check(user):
+    u = CHECKERS.query.filter_by(
+        BUSINESS_REF=g.user).filter_by(NAME=user).first()
+    if u.TYPE_USER == 1:
+        return True
+    else:
+        return False
+
+
+@app.route('/app/<string:user>')
+@app.route('/app/<string:user>/<string:checker>')
+@app.route('/app/<string:user>/<string:checker>/<string:action>')
+def User(user=None, checker=None, action=None):
+    print(request.path)
+    print(g.user, g.check, action)
+    if user == g.user and g.user:
+        if checker == g.check and g.check:
+            if action:
+                if action == 'sell':
+                    return render_template("application/sells.html", title='Ventas')
+                if action == 'admin':
+                    if admin_check(g.check):
+                        return render_template('application/admin.html', user=create_user_dict(
+                            MYBUSINESS.query.filter_by(USERNAME=g.user).first()), checkers=CHECKERS.query.filter_by(BUSINESS_REF=g.user).all(), data=DATA)
+                    else:
+                        flash(
+                            "No tenes permisos suficientes para esta función", "warning")
+                        return redirect(url_for('User', user=g.user, checker=g.check, action='sell'))
+                if action == 'check':
+                    #pasar admincheck si es verdadero que liste todas las
+                    #estadisticas de todos los cajeros (el inclusive)
+                    #sino solo mostrar las estadisticas de ese cajero
+                    return render_template("application/checkers.html", title='Caja')
+                if action == 'clients':
+                    return render_template("application/clients.html", title='Clientes')
+                if action == 'providers':
+                    return render_template("application/providers.html", title='Proveedores')
+                if action == 'articles':
+                    return render_template("application/articles.html", title='Artículos')
+                if action == 'list':
+                    print(request.args)
+                    return render_template("application/list.html")
+                if action == 'modify':
+                    return render_template("application/modify.html")
+            else:
+                if request.path == ('/app/'+g.user+'/'+g.check):
+                    return render_template("app.html")
+                else:
+                    return redirect(url_for('User', user=g.user, checker=g.check, action='sell'))
+        else:
+            check = CHECKERS.query.filter_by(BUSINESS_REF=g.user).all()
+            if 'Tu nombre' in check[0].NAME:
+                return render_template("check_login.html", change=True, data=create_checker_dict(None), admin=['Admin' if check[0].TYPE_USER == 1 else 'Cajero', check[0].PIN])
+            else:
+                if g.check:
+                    return redirect(url_for('User', user=g.user, checker=g.check, action='sell'))
+                else:
+                    if request.args:
+                        flash("Debes iniciar con pin para acceder", "warning")
+                    return render_template('check_login.html', checkers=check)
+    else:
+        if g.user:
+            return render_template('error.html')
+        else:
+            flash("Debes iniciar sesión primero", "danger")
+            return redirect(url_for('index'))
 
 
 @app.errorhandler(404)
