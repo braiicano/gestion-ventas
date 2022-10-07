@@ -1,3 +1,8 @@
 function alertPin(pin){
-    alert(`Este es tu Pin de acceso: "${pin}"`)
-}
+    value = prompt(`Este es tu Pin de acceso: "${pin}"`);
+    if (value == pin){
+        return true
+    }else{
+        return false
+    }
+};

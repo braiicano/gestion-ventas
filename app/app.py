@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import Flask, render_template, redirect, url_for, flash, request, g, session, escape
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as dt
@@ -52,10 +53,10 @@ class ARTICLES(db.Model):
     MAKER = db.Column(db.String(50))
     SKU = db.Column(db.String(50))
     STOCK = db.Column(db.Integer)
-    COST = db.Column(db.Float)
-    PUBLIC_PRICE = db.Column(db.Float)
+    COST = db.Column(db.Integer)
+    PUBLIC_PRICE = db.Column(db.Integer)
     IVA = db.Column(db.Integer, default=0)
-    ACTIVE = db.Column(db.Integer, default=1)  # where 0=no active, 1=active
+    ACTIVE = db.Column(db.String(5))  # where 0=no active, 1=active
     LAST_UPDATE = db.Column(
         db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
     BUSINESS_REF = db.Column(
@@ -76,6 +77,8 @@ class CLIENTS(BASE):
     __tablename__ = 'CLIENTS'
     INVOICES = db.Column(db.Integer, db.ForeignKey('INVOICE.ID'))
     DU = db.Column(db.Integer)
+    BUSINESS_REF = db.Column(
+        db.String(50), db.ForeignKey('MYBUSINESS.ID'))
 
 
 class INVOICE(db.Model):
@@ -84,7 +87,7 @@ class INVOICE(db.Model):
     TYPE_INVOICE = db.Column(db.String, nullable=False)
     DATE = db.Column(
         db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
-    TOTAL = db.Column(db.Float)
+    TOTAL = db.Column(db.Integer)
     ORDER_DETAILS = db.Column(db.String(255))
     NAME_CHECKER = db.Column(db.Integer, db.ForeignKey('CHECKERS.ID'))
     NAME_CLIENTS = db.Column(db.String)
@@ -116,9 +119,21 @@ class ORDER_DETAILS(db.Model):
     ID = db.Column(db.Integer, primary_key=True)
     ID_INVOICE = db.Column(db.Integer, db.ForeignKey('INVOICE.ID'))
     AMOUNT = db.Column(db.Integer)
-    ARTICLE_COST = db.Column(db.Float)
-    TOTAL_ORDER = db.Column(db.Float)
+    ARTICLE_COST = db.Column(db.Integer)
+    TOTAL_ORDER = db.Column(db.Integer)
     ID_ARTICLE = db.Column(db.Integer, db.ForeignKey('ARTICLES.ID'))
+
+
+class PROVIDERS(db.Model):
+    __tablename__ = 'PROVIDERS'
+    ID = db.Column(db.Integer, primary_key=True)
+    NAME = db.Column(db.String(50), nullable=False)
+    NAME_CONTACT = db.Column(db.String(50))
+    ADDRESS = db.Column(db.String(50))
+    PHONE = db.Column(db.Integer)
+    EMAIL = db.Column(db.String(50))
+    BUSINESS_NAME = db.Column(db.String(50))
+    BUSINESS_REF = db.Column(db.String(50), db.ForeignKey('MYBUSINESS.ID'))
 
 
 class REGISTER_OC(db.Model):
@@ -231,7 +246,8 @@ def create_checker_dict(args):
 
 @ app.before_request
 def before_request():
-    print(session)
+    # print(request.path)
+    # print(session)
     # print(g.idOpen)
     if 'new_user' in session:
         g.user = session['new_user']
@@ -287,26 +303,16 @@ def login():
 def logout():
     session.pop('new_user', None)
     session.pop('checker', None)
+    session.pop('idOpen', None)
     flash("Se ha cerrado sesión con éxito", "success")
     return redirect(url_for('index'))
 
 
-@app.route('/admin/panel', methods=['POST'])
-def update_admin():
-    d = request.form
-    ud = False
-    try:
-        if d['NAME']:
-            u = CHECKERS.query.filter_by(BUSINESS_REF=g.user).first()
-            u.NAME = d['NAME'] if u.NAME != d['NAME'] else u.NAME
-            u.SURNAME = d['SURNAME'] if u.SURNAME != d['SURNAME'] else u.SURNAME
-            u.BIRTH_DAY = d['BIRTH_DAY'] if u.BIRTH_DAY != d['BIRTH_DAY'] else u.BIRTH_DAY
-            u.ADDRESS = d['ADDRESS'] if u.ADDRESS != d['ADDRESS'] else u.ADDRESS
-            u.PHONE = d['PHONE'] if u.PHONE != d['PHONE'] else u.PHONE
-            u.EMAIL = d['EMAIL'] if u.EMAIL != d['EMAIL'] else u.EMAIL
-            u.PIN = d['PIN'] if u.PIN != d['PIN'] else u.PIN
-            ud = True
-    except:
+@app.route('/admin/<string:option>', methods=['POST'])
+def admin(option):
+    if option == 'update':
+        d = request.form
+        ud = False
         c = CHECKERS.query.filter_by(NAME=g.check).first()
         if c.TYPE_USER == 1:
             u = MYBUSINESS.query.filter_by(USERNAME=g.user).first()
@@ -321,7 +327,6 @@ def update_admin():
             u.ITEM = d['ITEM'] if u.ITEM != d['ITEM'] else u.ITEM
             u.IVA = d['IVA'] if u.IVA != d['IVA'] else u.IVA
             ud = True
-    finally:
         if ud:
             db.session.add(u)
             db.session.commit()
@@ -343,11 +348,7 @@ def checker(option='logout'):
             NAME=name).filter_by(SURNAME=surname).filter_by(PIN=r['PIN']).first()
         if c:
             g.check = session['checker'] = name
-            q = REGISTER_OC.query.filter_by(NAME_CHECK=g.check).all()[-1]
-            if q.DATE_CLOSE:
-                flash(f"Hola, {g.check} debes abrir caja", "success")
-            else:
-                flash(f"Abrió caja {q.DATE_OPEN}", "info")
+
             return redirect(url_for('User', user=g.user, checker=g.check, action='check'))
         flash("Pin ingresado es incorrecto, si olvidaste el Pin contactate con el administrador", "danger")
         return redirect(url_for('index'))
@@ -412,11 +413,142 @@ def checker(option='logout'):
         db.session.commit()
         flash("Nuevo cajero registrado", "success")
     if option == 'delete':
-        q=CHECKERS.query.filter_by(BUSINESS_REF=g.user).filter_by(ID=request.args['values']).first()
+        q = CHECKERS.query.filter_by(BUSINESS_REF=g.user).filter_by(
+            ID=request.args['values']).first()
         db.session.delete(q)
         db.session.commit()
         flash("Cajero %s fué eliminado" % q.NAME, "danger")
-    return redirect(url_for('User', user=g.user, checker=g.check, action='admin'))
+    if option == 'admin' and request.method == 'POST':
+        a = request.args
+        r = request.form
+        ud = False
+        if a['values'] == 'create':
+            c = CHECKERS.query.filter_by(BUSINESS_REF=g.user).first()
+            c.NAME = r['NAME'] if c.NAME != r['NAME'] else c.NAME
+            c.SURNAME = r['SURNAME'] if c.SURNAME != r['SURNAME'] else c.SURNAME
+            c.BIRTH_DAY = r['BIRTH_DAY'] if c.BIRTH_DAY != r['BIRTH_DAY'] else c.BIRTH_DAY
+            c.ADDRESS = r['ADDRESS'] if c.ADDRESS != r['ADDRESS'] else c.ADDRESS
+            c.PHONE = r['PHONE'] if c.PHONE != r['PHONE'] else c.PHONE
+            c.EMAIL = r['EMAIL'] if c.EMAIL != r['EMAIL'] else c.EMAIL
+            g.check = session['checker'] = r['NAME']
+            ud = True
+        elif a['values'] == 'update':
+            ud = True
+        if ud:
+            db.session.add(c)
+            db.session.commit()
+            flash("Se actualizó con éxito", "success")
+        else:
+            flash("Ocurrió un error al cargar los datos", 'danger')
+    if CHECKERS.query.filter_by(BUSINESS_REF=g.user).filter_by(NAME=g.check).first().TYPE_USER == 1:
+        return redirect(url_for('User', user=g.user, checker=g.check, action='admin'))
+    else:
+        return redirect(url_for('User', user=g.user, checker=g.check, action='sell'))
+
+
+@app.route('/client/<string:option>', methods=['POST', 'GET'])
+def client(option):
+    ud = False
+    r = request.form
+    if option == 'new' and request.method == 'POST':
+        c = CLIENTS(NAME=r['NAME'], SURNAME=r['SURNAME'], BIRTH_DAY=r['BIRTH_DAY'], ADDRESS=r['ADDRESS'],
+                    PHONE=r['PHONE'], EMAIL=r['EMAIL'], DU=r['DOCUMENT'], BUSINESS_REF=g.user)
+        ud = True
+    if option == 'edit' and request.method == 'POST':
+        a = request.args['values']
+        c = CLIENTS.query.filter_by(ID=a).first()
+        print(a, c)
+        c.DU = r['DOCUMENT'] if c.DU != r['DOCUMENT'] else c.DU
+        c.NAME = r['NAME'] if c.NAME != r['NAME'] else c.NAME
+        c.SURNAME = r['SURNAME'] if c.SURNAME != r['SURNAME'] else c.SURNAME
+        c.BIRTH_DAY = r['BIRTH_DAY'] if c.BIRTH_DAY != r['BIRTH_DAY'] else c.BIRTH_DAY
+        c.ADDRESS = r['ADDRESS'] if c.ADDRESS != r['ADDRESS'] else c.ADDRESS
+        c.PHONE = r['PHONE'] if c.PHONE != r['PHONE'] else c.PHONE
+        c.EMAIL = r['EMAIL'] if c.EMAIL != r['EMAIL'] else c.EMAIL
+        g.check = session['checker'] = r['NAME']
+        ud = True
+    if option == 'delete' and request.method == 'GET':
+        a = request.args['values']
+        c = CLIENTS.query.filter_by(ID=a).first()
+        db.session.delete(c)
+        db.session.commit()
+    if ud:
+        db.session.add(c)
+        db.session.commit()
+        flash("Cambios realizados con éxito", "success")
+
+    return redirect(url_for('User', user=g.user, checker=g.check, action='clients'))
+
+
+@app.route('/provider/<string:option>', methods=['POST', 'GET'])
+def provider(option):
+    ud = False
+    r = request.form
+    if option == 'new' and request.method == 'POST':
+        c = PROVIDERS(NAME=r['NAME'], NAME_CONTACT=r['NAME_CONTACT'], BUSINESS_NAME=r['BUSINESS_NAME'], ADDRESS=r['ADDRESS'],
+                      PHONE=r['PHONE'], EMAIL=r['EMAIL'], BUSINESS_REF=g.user)
+        ud = True
+    if option == 'edit' and request.method == 'POST':
+        a = request.args['values']
+        c = PROVIDERS.query.filter_by(ID=a).first()
+        c.NAME = r['NAME'] if c.NAME != r['NAME'] else c.NAME
+        c.NAME_CONTACT = r['NAME_CONTACT'] if c.NAME_CONTACT != r['NAME_CONTACT'] else c.NAME_CONTACT
+        c.BUSINESS_NAME = r['BUSINESS_NAME'] if c.BUSINESS_NAME != r['BUSINESS_NAME'] else c.BUSINESS_NAME
+        c.ADDRESS = r['ADDRESS'] if c.ADDRESS != r['ADDRESS'] else c.ADDRESS
+        c.PHONE = r['PHONE'] if c.PHONE != r['PHONE'] else c.PHONE
+        c.EMAIL = r['EMAIL'] if c.EMAIL != r['EMAIL'] else c.EMAIL
+        ud = True
+    if option == 'delete' and request.method == 'GET':
+        a = request.args['values']
+        c = PROVIDERS.query.filter_by(ID=a).first()
+        db.session.delete(c)
+        db.session.commit()
+    if ud:
+        db.session.add(c)
+        db.session.commit()
+        flash("Cambios realizados con éxito", "success")
+
+    return redirect(url_for('User', user=g.user, checker=g.check, action='providers'))
+
+
+@app.route('/article/<string:option>', methods=['POST', 'GET'])
+def article(option):
+    ud = False
+    r = request.form
+    if option == 'new' and request.method == 'POST':
+        try:
+            val = r['ACTIVE']
+        except KeyError:
+            val = 'off'
+        c = ARTICLES(NAME=r['NAME'], CATEGORY=r['CATEGORY'], PROVIDER=r['PROVIDER'], MAKER=r['MAKER'],
+                     SKU=r['SKU'], STOCK=r['STOCK'], COST=r['COST'], PUBLIC_PRICE=r['PUBLIC_PRICE'], IVA=r['IVA'], ACTIVE=val, LAST_UPDATE=dt.today().strftime("%d-%m-%Y %H:%M:%S"), BUSINESS_REF=g.user)
+        ud = True
+    if option == 'edit' and request.method == 'POST':
+        a = request.args['values']
+        c = ARTICLES.query.filter_by(ID=a).first()
+        c.NAME = r['NAME'] if c.NAME != r['NAME'] else c.NAME
+        c.CATEGORY = r['CATEGORY'] if c.CATEGORY != r['CATEGORY'] else c.CATEGORY
+        c.PROVIDER = r['PROVIDER'] if c.PROVIDER != r['PROVIDER'] else c.PROVIDER
+        c.MAKER = r['MAKER'] if c.MAKER != r['MAKER'] else c.MAKER
+        c.SKU = r['SKU'] if c.SKU != r['SKU'] else c.SKU
+        c.STOCK = r['STOCK'] if c.STOCK != r['STOCK'] else c.STOCK
+        c.COST = r['COST'] if c.COST != r['COST'] else c.COST
+        c.PUBLIC_PRICE = r['PUBLIC_PRICE'] if c.PUBLIC_PRICE != r['PUBLIC_PRICE'] else c.PUBLIC_PRICE
+        c.IVA = r['IVA'] if c.IVA != r['IVA'] else c.IVA
+        c.ACTIVE = r['ACTIVE'] if c.ACTIVE != r['ACTIVE'] else c.ACTIVE
+        c.LAST_UPDATE = dt.today().strftime("%d-%m-%Y %H:%M:%S")
+        ud = True
+    if option == 'delete' and request.method == 'GET':
+        a = request.args['values']
+        c = ARTICLES.query.filter_by(ID=a).first()
+        db.session.delete(c)
+        db.session.commit()
+    if ud:
+        db.session.add(c)
+        db.session.commit()
+        flash("Cambios realizados con éxito", "success")
+
+    return redirect(url_for('User', user=g.user, checker=g.check, action='articles'))
 
 
 def admin_check(user):
@@ -432,7 +564,6 @@ def admin_check(user):
 @app.route('/app/<string:user>/<string:checker>')
 @app.route('/app/<string:user>/<string:checker>/<string:action>')
 def User(user=None, checker=None, action=None):
-    print(request.path)
     print(g.user, g.check, action)
     if user == g.user and g.user:
         if checker == g.check and g.check:
@@ -440,12 +571,13 @@ def User(user=None, checker=None, action=None):
                 if action == 'sell':
                     openAt = None
                     if g.idOpen:
-                        openAt= REGISTER_OC.query.filter_by(ID=g.idOpen).first().DATE_OPEN.split(' ')[1]
-                    return render_template("application/sells.html", title='Ventas',openAt=openAt)
+                        openAt = REGISTER_OC.query.filter_by(
+                            ID=g.idOpen).first().DATE_OPEN.split(' ')[1]
+                    return render_template("application/sells.html", title='Ventas', openAt=openAt)
                 if action == 'admin':
                     if admin_check(g.check):
                         return render_template('application/admin.html', user=create_user_dict(
-                            MYBUSINESS.query.filter_by(USERNAME=g.user).first()), checkers=CHECKERS.query.filter_by(BUSINESS_REF=g.user).all(), data=DATA,randomPin=ra())
+                            MYBUSINESS.query.filter_by(USERNAME=g.user).first()), checkers=CHECKERS.query.filter_by(BUSINESS_REF=g.user).all(), data=DATA, randomPin=ra())
                     else:
                         flash(
                             "No tenes permisos suficientes para esta función", "warning")
@@ -457,11 +589,15 @@ def User(user=None, checker=None, action=None):
                     ocheck = REGISTER_OC.query.filter_by(ID=g.idOpen).first()
                     return render_template("application/checkers.html", title='Caja', ocheck=ocheck)
                 if action == 'clients':
-                    return render_template("application/clients.html", title='Clientes')
+                    lc = CLIENTS.query.filter_by(BUSINESS_REF=g.user).all()
+                    print(lc)
+                    return render_template("application/clients.html", title='Clientes', list_clients=lc)
                 if action == 'providers':
-                    return render_template("application/providers.html", title='Proveedores')
+                    lp = PROVIDERS.query.filter_by(BUSINESS_REF=g.user).all()
+                    return render_template("application/providers.html", title='Proveedores', list_providers=lp)
                 if action == 'articles':
-                    return render_template("application/articles.html", title='Artículos')
+                    la = ARTICLES.query.filter_by(BUSINESS_REF=g.user).all()
+                    return render_template("application/articles.html", title='Artículos', list_articles=la)
                 if action == 'list':
                     print(request.args)
                     return render_template("application/list.html")

@@ -1,8 +1,9 @@
-{% extends "layout.html" %} {% block title %}-{{title}}{% endblock %}
+{% extends "layout.html" %} {% block title %}-Ventas{% endblock %}
 {% block body %}
 <div class="container">
     {% if g.idOpen %}
-    <h2>Apertura de caja realizado a las {{openAt}}</h2>
+    <legend class="row">Apertura de caja realizado a las {{openAt}}</legend class="row">
+        
     {% else %}
     <div class="list-group">
         <a href="{{url_for('User',user=g.user,checker=g.check,action='check')}}" class="list-group-item list-group-item-action flex-column align-items-start active">

@@ -9,7 +9,7 @@
     <div class="container">
         <h3> Configuremos tus datos de administrador </h3>
         <p> Ingrese para continuar: </p>
-        <form action="{{url_for('update_admin')}}" method="post" class="form-group row">
+        <form action="{{url_for('checker',option='admin',values='create')}}" method="post" class="form-group row">
             {% for k,v in data.items() %}
             <div class="form-group col-md-4 mt-1">
                 <div class="form-floating">
