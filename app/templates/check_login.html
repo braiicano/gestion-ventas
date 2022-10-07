@@ -28,7 +28,8 @@
                 </div>
             </div>
             {% endfor%}
-            <button type="submit" class="btn btn-info col-md mt-2 mx">Guardar cambios</button>
+            <button type="submit" class="btn btn-info col-md mt-2 mx" onclick="alertPin({{ admin[1] }})">Guardar
+                cambios</button>
         </form>
     </div>
     {% else %}
@@ -38,13 +39,14 @@
             <div class="card-header">Para ingresar debe indicar su pin</div>
             <div class="card-body">
                 <h4 class="card-title">Seleccione su nombre</h4>
-                <form action="{{url_for('checker',option='login')}}" method="post" class="row justify-content-md-center">
-                        <select class="col-md-4" id="exampleSelect1" name="CHECKER" value="Seleccione su usuario" autofocus>
-                            {% for i in checkers %}<option>{{i.NAME}} {{i.SURNAME}}</option>{% endfor %}
-                        </select>
-                        <input type="number" class="col" placeholder="Ingrese su pin" id="inputDefault"
-                            name="PIN" maxlength="4" required>
-                        <button type="submit" class="btn btn-light col-sm-4">Ingresar</button>
+                <form action="{{url_for('checker',option='login')}}" method="post"
+                    class="row justify-content-md-center">
+                    <select class="col-md-4" id="exampleSelect1" name="CHECKER" value="Seleccione su usuario" autofocus>
+                        {% for i in checkers %}<option>{{i.NAME}} {{i.SURNAME}}</option>{% endfor %}
+                    </select>
+                    <input type="number" class="col" placeholder="Ingrese su pin" id="inputDefault" name="PIN"
+                        maxlength="4" required>
+                    <button type="submit" class="btn btn-light col-sm-4">Ingresar</button>
                 </form>
                 <p class="card-text">Si olvidó el PIN, puede revisar en su casilla de correo o hable con el
                     administrador de

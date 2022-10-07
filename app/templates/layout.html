@@ -85,7 +85,7 @@
                 {% endif %}
                 <div class="d-flex">
                     <a href="{{url_for('index')}}" class="btn btn-primary">Inicio</a>
-                    <a href="{{url_for('logout')}}" class="btn btn-outline-secondary">Salir</a>
+                    <a href="{{url_for('logout')}}" class="btn btn-outline-secondary" id="exit">Salir</a>
                 </div>
             </div>
         </div>
@@ -99,6 +99,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
         crossorigin="anonymous"></script>
+    <script src="{{url_for('static',filename='js/alerts.js')}}"></script>
     {% block scriptjs %}
     {% endblock %}
 </body>

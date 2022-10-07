@@ -1,7 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, flash, request, g, session, escape
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as dt
-import sqlalchemy.exc as error
 from werkzeug.security import generate_password_hash, check_password_hash
 from random import randrange, randint
 import os
@@ -38,7 +37,10 @@ class BASE(db.Model):
     ADDRESS = db.Column(db.String(50))
     PHONE = db.Column(db.String(50))
     EMAIL = db.Column(db.String(50))
-    LAST_UPDATE = db.Column(db.DateTime, default=dt.today())
+    LAST_UPDATE = db.Column(
+        db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
+    CREATED_AT = db.Column(
+        db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
 
 
 class ARTICLES(db.Model):
@@ -47,30 +49,43 @@ class ARTICLES(db.Model):
     NAME = db.Column(db.String(50), nullable=False)
     CATEGORY = db.Column(db.String(50))
     PROVIDER = db.Column(db.String(50))
+    MAKER = db.Column(db.String(50))
     SKU = db.Column(db.String(50))
     STOCK = db.Column(db.Integer)
-    COST = db.Column(db.Integer, default=0)
+    COST = db.Column(db.Float)
+    PUBLIC_PRICE = db.Column(db.Float)
     IVA = db.Column(db.Integer, default=0)
-    SALE = db.Column(db.Integer, default=1)  # where 0=no active, 1=active
-    LAST_UPDATE = db.Column(db.DateTime, default=dt.today())
+    ACTIVE = db.Column(db.Integer, default=1)  # where 0=no active, 1=active
+    LAST_UPDATE = db.Column(db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
     BUSINESS_REF = db.Column(
-        db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
+        db.String(50), db.ForeignKey('MYBUSINESS.ID'))
     #IMAGE = db.Column(db.BLOB)
+
+
+class CHECKERS(BASE):
+    __tablename__ = 'CHECKERS'
+    TYPE_USER = db.Column(db.Integer, nullable=False,
+                          default=2)  # If 1=admin,2=check
+    BUSINESS_REF = db.Column(
+        db.String(50), db.ForeignKey('MYBUSINESS.ID'))
+    PIN = db.Column(db.Integer, nullable=False, default=ra())
+
+
+class CLIENTS(BASE):
+    __tablename__ = 'CLIENTS'
+    INVOICES = db.Column(db.Integer, db.ForeignKey('INVOICE.ID'))
+    DU = db.Column(db.Integer)
 
 
 class INVOICE(db.Model):
     __tablename__ = 'INVOICE'
     ID = db.Column(db.Integer, primary_key=True)
     TYPE_INVOICE = db.Column(db.String, nullable=False)
-    DATE = db.Column(db.DateTime, default=dt.today())
-    ID_ARTICLE = db.Column(db.String(50))
-
-
-class TYPE_ACCOUNT(db.Model):
-    __tablename__ = 'TYPE_ACCOUNT'
-    ID_Rel = db.relationship('MYBUSINESS', backref='onwer', lazy='dynamic')
-    ID = db.Column(db.Integer, primary_key=True)
-    TYPE = db.Column(db.String(10))
+    DATE = db.Column(db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
+    TOTAL = db.Column(db.Float)
+    ORDER_DETAILS = db.Column(db.String(255))
+    NAME_CHECKER = db.Column(db.Integer, db.ForeignKey('CHECKERS.ID'))
+    NAME_CLIENTS = db.Column(db.String)
 
 
 class MYBUSINESS(db.Model):
@@ -88,36 +103,31 @@ class MYBUSINESS(db.Model):
     BEGIN_DATE = db.Column(db.String(255))
     ITEM = db.Column(db.Integer)
     IVA = db.Column(db.Integer)
-    CHECKERS = db.Column(db.Integer)
-    CREATE_AT = db.Column(db.DateTime, default=dt.today())
-    TYPE_ACCOUNT = db.Column(db.Integer, db.ForeignKey(
-        'TYPE_ACCOUNT.ID'))
+    # CHECKERS = db.Column(db.Integer)
+    CREATE_AT = db.Column(db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
+    TYPE_ACCOUNT = db.Column(db.Integer, default=1)  # 1 is free, 2 is premium
 
 
-class CLIENTS(BASE):
-    __tablename__ = 'CLIENTS'
-    INVOICE = db.Column(db.Integer, db.ForeignKey('INVOICE.ID'))
-
-
-class CHECKERS(BASE):
-    __tablename__ = 'CHECKERS'
-    TYPE_USER = db.Column(db.Integer, nullable=False)  # If 1=admin,2=check
-    BUSINESS_REF = db.Column(
-        db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
-    PIN = db.Column(db.Integer, nullable=False)
+class ORDER_DETAILS(db.Model):
+    __tablename__ = 'ORDER_DETAILS'
+    ID = db.Column(db.Integer, primary_key=True)
+    ID_INVOICE = db.Column(db.Integer, db.ForeignKey('INVOICE.ID'))
+    AMOUNT = db.Column(db.Integer)
+    ARTICLE_COST = db.Column(db.Float)
+    TOTAL_ORDER = db.Column(db.Float)
+    ID_ARTICLE = db.Column(db.Integer, db.ForeignKey('ARTICLES.ID'))
 
 
 class REGISTER_OC(db.Model):
     __tablename__ = 'REGISTER_OC'
     ID = db.Column(db.Integer, primary_key=True)
     NAME_CHECK = db.Column(db.Integer, db.ForeignKey('CHECKERS.ID'))
-    DATE_OPEN = db.Column(db.DateTime)
-    DATE_CLOSE = db.Column(db.DateTime)
+    DATE_OPEN = db.Column(db.String)
+    DATE_CLOSE = db.Column(db.String)
     AMOUNT_OPEN = db.Column(db.Integer)
     AMOUNT_CLOSE = db.Column(db.Integer)
     AMOUNT_TOTAL = db.Column(db.Integer)
-    BUSINESS_REF = db.Column(
-        db.String(50), db.ForeignKey('MYBUSINESS.USERNAME'))
+    BUSINESS_REF = db.Column(db.Integer, db.ForeignKey('MYBUSINESS.ID'))
 
 
 def add_checker(args=None, var=2):
@@ -170,7 +180,9 @@ def create_user_dict(args) -> dict:
     key = ['Nombre de usuario', 'Email', 'Nombre fiscal', 'Nombre comercial', 'Teléfono', 'Dirección',
            'CUIT', 'IIBB', 'Fecha de inicio', 'Rubro', 'IVA', 'Cajeros', 'Creación de cuenta', 'Tipo de cuenta']
     val = args.TYPE_ACCOUNT
-    type_user = TYPE_ACCOUNT.query.filter_by(ID=val).first()
+    type_user = 'Admin' if val == 1 else 'Checker'
+    check = CHECKERS.query.filter_by(BUSINESS_REF=g.user).all()
+
     return {
         key[0]: args.USERNAME,
         key[1]: args.EMAIL,
@@ -183,9 +195,9 @@ def create_user_dict(args) -> dict:
         key[8]: args.BEGIN_DATE,
         key[9]: args.ITEM,
         key[10]: args.IVA,
-        key[11]: args.CHECKERS,
         key[12]: args.CREATE_AT,
-        key[13]: type_user.TYPE,
+        key[13]: type_user,
+        key[11]: check,
     }
 
 
@@ -345,7 +357,7 @@ def checker(option='logout'):
                 NAME_CHECK=g.check).filter_by(BUSINESS_REF=g.user).all()
             try:
                 if qoc[-1].DATE_CLOSE:
-                    q = REGISTER_OC(NAME_CHECK=g.check, DATE_OPEN=dt.today(),
+                    q = REGISTER_OC(NAME_CHECK=g.check, DATE_OPEN=dt.today().strftime("%d-%m-%Y %H:%M:%S"),
                                     AMOUNT_OPEN=r['open'], BUSINESS_REF=g.user)
                     db.session.add(q), db.session.commit()
                     g.idOpen = session['idOpen'] = q.ID
@@ -353,7 +365,7 @@ def checker(option='logout'):
                 else:
                     g.idOpen = session['idOpen'] = qoc[-1].ID
             except IndexError:
-                q = REGISTER_OC(NAME_CHECK=g.check, DATE_OPEN=dt.today(),
+                q = REGISTER_OC(NAME_CHECK=g.check, DATE_OPEN=dt.today().strftime("%d-%m-%Y %H:%M:%S"),
                                 AMOUNT_OPEN=r['open'], BUSINESS_REF=g.user)
                 db.session.add(q), db.session.commit()
                 g.idOpen = session['idOpen'] = q.ID
@@ -363,7 +375,7 @@ def checker(option='logout'):
         r = request.form
         if g.idOpen:
             q = REGISTER_OC.query.filter_by(ID=g.idOpen).first()
-            q.DATE_CLOSE = dt.today()
+            q.DATE_CLOSE = dt.today().strftime("%d-%m-%Y %H:%M:%S")
             q.AMOUNT_CLOSE = r['close']
             q.AMOUNT_TOTAL = q.AMOUNT_OPEN - float(r['close'])
             db.session.add(q), db.session.commit()
@@ -396,6 +408,9 @@ def User(user=None, checker=None, action=None):
                     return render_template("application/sells.html", title='Ventas')
                 if action == 'admin':
                     if admin_check(g.check):
+                        #Agregar <select><option> con los cajeros para modificarlos o agregar o borrar
+                        #el boton borrar salta alerta diciendo OK o No
+                        #el input debe ocupar todo el ancho de la pantalla, posicionarlo al final
                         return render_template('application/admin.html', user=create_user_dict(
                             MYBUSINESS.query.filter_by(USERNAME=g.user).first()), checkers=CHECKERS.query.filter_by(BUSINESS_REF=g.user).all(), data=DATA)
                     else:
@@ -403,10 +418,11 @@ def User(user=None, checker=None, action=None):
                             "No tenes permisos suficientes para esta función", "warning")
                         return redirect(url_for('User', user=g.user, checker=g.check, action='sell'))
                 if action == 'check':
-                    #pasar admincheck si es verdadero que liste todas las
-                    #estadisticas de todos los cajeros (el inclusive)
-                    #sino solo mostrar las estadisticas de ese cajero
-                    return render_template("application/checkers.html", title='Caja')
+                    # pasar admincheck si es verdadero que liste todas las
+                    # estadisticas de todos los cajeros (el inclusive)
+                    # sino solo mostrar las estadisticas de ese cajero
+                    ocheck= REGISTER_OC.query.filter_by(ID=g.idOpen).first()
+                    return render_template("application/checkers.html", title='Caja' , ocheck=ocheck)
                 if action == 'clients':
                     return render_template("application/clients.html", title='Clientes')
                 if action == 'providers':
@@ -449,10 +465,4 @@ def error_handler(e):
 
 if __name__ == '__main__':
     db.create_all()
-    # try:
-    #     db.session.add(TYPE_ACCOUNT(ID=1, TYPE='Free'))
-    #     db.session.add(TYPE_ACCOUNT(ID=2, TYPE='Premium'))
-    #     db.session.commit()
-    # except error.IntegrityError:
-    #     print("Some data is created")
     app.run(debug=True, port=8080)
