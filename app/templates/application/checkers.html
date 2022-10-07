@@ -1,3 +1,4 @@
+{% from 'macros.html' import  render_open_close_check %}
 {% extends "layout.html" %} {% block title %}-{{title}}{% endblock %} {% block body %}
 <div class="container text-center">
     <div class="row text-center">
@@ -16,57 +17,8 @@
                     id="inputSmall"> </li>
         </ul>
         <div id="myTabContent" class="tab-content">
-            <div class="tab-pane fade {%if not g.idOpen%}active show{%endif%}" id="open" role="tabpanel">
-                <div class="container row justify-content-center">
-                    <div class="card border-secondary mb-3" style="max-width: 20rem;">
-                        <div class="card-header">Fecha y hora de apertura</div>
-                        <div class="card-body">
-                            <h5 class="card-title" id="o-date">date</h5>
-                            <h5 class="card-title" id="o-time">00:00</h5>
-                        </div>
-                        <div class="card-header">Indique monto de su caja</div>
-                        <div class="card-body">
-                            <form action="{{url_for('checker',option='open')}}" method="post">
-                                <div class="form-group card-text">
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text">$</span>
-                                        <input name="open" type="text" class="form-control"
-                                            aria-label="Amount (to the nearest dollar)" />
-                                        <button class="btn btn-primary input-group-text" type="submit"
-                                            id="button-addon2">Abrir</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane fade {%if g.idOpen%}active show{%endif%}" id="close" role="tabpanel">
-                <div class="container row justify-content-center">
-                    <div class="card border-secondary mb-3" style="max-width: 20rem;">
-                        <div class="card-header">Fecha y hora de cierre</div>
-                        <div class="card-body">
-                            <h5 class="card-title" id="c-date">date</h5>
-                            <h5 class="card-title" id="c-time">00:00</h5>
-                        </div>
-                        {%if ocheck%}<div class="card-header">Abrió caja con ${{ocheck.AMOUNT_OPEN}}</div>{%endif%}
-                        <div class="card-header">Indique monto de su caja</div>
-                        <div class="card-body">
-                            <form action="{{url_for('checker',option='close')}}" method="post">
-                                <div class="form-group card-text">
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text">$</span>
-                                        <input name="close" type="text" class="form-control"
-                                            aria-label="Amount (to the nearest dollar)" />
-                                        <button class="btn btn-primary input-group-text" type="submit"
-                                            id="button-addon2">Cerrar</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{ render_open_close_check('apertura',ocheck)}}
+            {{ render_open_close_check('cierre',ocheck)}}
             <div class="tab-pane fade" id="today" role="tabpanel">
                 <p>Panel de estadistica de caja de hoy</p>
             </div>

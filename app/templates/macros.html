@@ -1,13 +1,190 @@
-{% macro render_input(label_name,name,placeholder,type="text",value=None) %}
+{% macro render_input(label_name,name,placeholder,type="text",value=None,req=False) %}
 <div class="form-group">
     <label for="{{name}}" class="form-label mt-4">{{label_name}}</label>
     <input name="{{name}}" type="{{type}}" class="form-control" id="{{name}}" {%if placeholder
         %}placeholder="{{placeholder}}" {%endif%} {%if value%}value="{{value}}" {%endif%} {%if type=='password'
-        %}minlength="8" {%endif%}>
+        %}minlength="8" {%endif%} {%if req%}required{%endif%}>
 </div>
 {% endmacro %}
 {% macro render_button(name,type='submit') %}
 <div class="d-grid gap-2">
     <button class="btn btn-lg btn-primary mt-4" type="{{type}}">{{name}}</button>
+</div>
+{% endmacro %}
+
+
+{% macro render_open_close_check(status,ocheck=None) %}
+{% set name = 'close' if status=='cierre' else 'open' %}
+<div class="tab-pane fade {%if g.idOpen and status=='cierre'%}active show{% elif not g.idOpen and status=='apertura'%}active show{%endif%}"
+    id={{name}} role="tabpanel">
+    <div class="container row justify-content-center">
+        <div class="card border-secondary mb-3" style="max-width: 20rem;">
+            <div class="card-header">Fecha y hora de {{status}}</div>
+            <div class="card-body">
+                <h5 class="card-title" id="{{name}}-date">date</h5>
+                <h5 class="card-title" id="{{name}}-time">00:00</h5>
+            </div>
+            {% if ocheck %}<div class="card-header">Abrió caja con ${{ocheck.AMOUNT_OPEN}}</div>{%endif%}
+            <div class="card-header">Indique monto de su caja</div>
+            <div class="card-body">
+                <form action="{{url_for('checker',option=name )}}" method="post">
+                    <div class="form-group card-text">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">$</span>
+                            <input name={{name}} type="text" class="form-control"
+                                aria-label="Amount (to the nearest dollar)" />
+                            <button class="btn btn-primary input-group-text" type="submit"
+                                id="button-addon2">{{status.capitalize()}}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro show_checker(list_checkers,randomPin) %}
+<div class="container-fluid col mt-4 p-0">
+    <table class="table table-hover mt-4">
+        <div class="row">
+            <legend class="col text-center">Cajeros registrados</legend>
+            <div class="container col">
+                <button type="button" class="btn btn-success col" data-bs-toggle="modal"
+                    data-bs-target="#new-check">Agregar nuevo cajero</button>
+            </div>
+        </div>
+        <div class="modal fade" id="new-check" tabindex="-1" aria-labelledby="new-checkLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="new-checkLabel">Registrar nuevo cajero</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{url_for('checker',option='new')}}" method="post">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('Nombre','NAME', req=True)}}
+                                </div>
+                                <div class="col">
+                                    {{render_input('Apellido','SURNAME', req=True)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('Fecha de nacimiento','BIRTH_DAY',type='date')}}
+                                </div>
+                                <div class="col">
+                                    {{render_input('Dirección','ADDRESS')}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('Teléfono','PHONE',type='tel')}}
+                                </div>
+                                <div class="col">
+                                    {{render_input('Email','EMAIL',type="email")}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('PIN','PIN',type='number', req=True,value=randomPin)}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <thead>
+            <tr class="table-dark">
+                <th>Nombre</th>
+                <td>Apellido</td>
+                <td>Fecha de nacimiento</td>
+                <td>Dirección</td>
+                <td>Teléfono</td>
+                <td>Email</td>
+                <td>PIN</td>
+                <td>Acciones</td>
+            </tr>
+        </thead>
+        {% for check in list_checkers %}
+        {% if not check.TYPE_USER == 1 %}
+        <tr>
+            <th>{{check.NAME}}</th>
+            <td>{{check.SURNAME}}</td>
+            <td>{{check.BIRTH_DAY}}</td>
+            <td>{{check.ADDRESS}}</td>
+            <td>{{check.PHONE}}</td>
+            <td>{{check.EMAIL}}</td>
+            <td class="hidden-click">
+                <p>{{check.PIN}}</p>
+            </td>
+            <td class="text-center row">
+                <button type="button" class="btn btn-info btn-sm col" data-bs-toggle="modal"
+                    data-bs-target="#{{check.NAME}}{{check.ID}}">Editar</button>
+                <a href="{{url_for('checker',option='delete',values=check.ID)}}"
+                    class="btn btn-sm btn-danger col">Borrar</a>
+
+            </td>
+        </tr>
+        <div class="modal fade" id="{{check.NAME}}{{check.ID}}" tabindex="-1"
+            aria-labelledby="{{check.NAME}}{{check.ID}}Label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="{{check.NAME}}{{check.ID}}Label">Modificar datos de
+                            {{check.NAME}}</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{url_for('checker',option='edit',values=check.ID)}}" method="post">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('Nombre','NAME',value=check.NAME, req=True)}}
+                                </div>
+                                <div class="col">
+                                    {{render_input('Apellido','SURNAME',value=check.SURNAME, req=True)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('Fecha de
+                                    nacimiento','BIRTH_DAY',type='date',value=check.BIRTH_DAY)}}
+                                </div>
+                                <div class="col">
+                                    {{render_input('Dirección','ADDRESS',value=check.ADDRESS)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('Teléfono','PHONE',type='tel',value=check.PHONE)}}
+                                </div>
+                                <div class="col">
+                                    {{render_input('Email','EMAIL',type="email",value=check.EMAIL)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    {{render_input('PIN','PIN',type='number',value=check.PIN, req=True)}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </table>
 </div>
 {% endmacro %}

@@ -1,3 +1,4 @@
+{% from 'macros.html' import show_checker %}
 {% extends "layout.html" %}
 {% block title%}-Admin{% endblock %}
 {% block body %}
@@ -8,7 +9,7 @@
             <legend>Panel de administrador</legend>
         </fieldset>
         {% for k,v in user.items() %}
-        <div class="form-group col-md-4 mt-1">
+        <div class="form-group col-sm-4 row mt-1">
             {%if 'usuario' in k or 'cuenta' in k%}<fieldset disabled>{%endif%}
                 <div class="form-floating">
                     <input type={%if 'Fecha' in k%}"date"{% elif 'CUIT' in k or 'Teléfono' in k
@@ -20,7 +21,9 @@
             </fieldset>{%endif%}
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn-info col-md-4 mt-2">Guardar cambios</button>
+        <button type="submit" class="btn btn-info col-sm-4 my-2 ">Guardar cambios</button>
     </form>
 </div>
+<br>
+    {{show_checker( checkers ,randomPin)}}
 {% endblock %}

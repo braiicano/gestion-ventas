@@ -1,9 +1,9 @@
 // import "bootswatch/dist/lux/bootstrap.min.css"
 
-const oTime = document.getElementById("o-time");
-const oDate = document.getElementById("o-date");
-const cTime = document.getElementById("c-time");
-const cDate = document.getElementById("c-date");
+const oTime = document.getElementById("open-time");
+const oDate = document.getElementById("open-date");
+const cTime = document.getElementById("close-time");
+const cDate = document.getElementById("close-date");
 
 const monthNames = [
   "Enero",

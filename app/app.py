@@ -56,7 +56,8 @@ class ARTICLES(db.Model):
     PUBLIC_PRICE = db.Column(db.Float)
     IVA = db.Column(db.Integer, default=0)
     ACTIVE = db.Column(db.Integer, default=1)  # where 0=no active, 1=active
-    LAST_UPDATE = db.Column(db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
+    LAST_UPDATE = db.Column(
+        db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
     BUSINESS_REF = db.Column(
         db.String(50), db.ForeignKey('MYBUSINESS.ID'))
     #IMAGE = db.Column(db.BLOB)
@@ -81,7 +82,8 @@ class INVOICE(db.Model):
     __tablename__ = 'INVOICE'
     ID = db.Column(db.Integer, primary_key=True)
     TYPE_INVOICE = db.Column(db.String, nullable=False)
-    DATE = db.Column(db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
+    DATE = db.Column(
+        db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
     TOTAL = db.Column(db.Float)
     ORDER_DETAILS = db.Column(db.String(255))
     NAME_CHECKER = db.Column(db.Integer, db.ForeignKey('CHECKERS.ID'))
@@ -104,7 +106,8 @@ class MYBUSINESS(db.Model):
     ITEM = db.Column(db.Integer)
     IVA = db.Column(db.Integer)
     # CHECKERS = db.Column(db.Integer)
-    CREATE_AT = db.Column(db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
+    CREATE_AT = db.Column(
+        db.String, default=dt.today().strftime("%d-%m-%Y %H:%M:%S"))
     TYPE_ACCOUNT = db.Column(db.Integer, default=1)  # 1 is free, 2 is premium
 
 
@@ -178,10 +181,9 @@ def verify_user(args):
 
 def create_user_dict(args) -> dict:
     key = ['Nombre de usuario', 'Email', 'Nombre fiscal', 'Nombre comercial', 'Teléfono', 'Dirección',
-           'CUIT', 'IIBB', 'Fecha de inicio', 'Rubro', 'IVA', 'Cajeros', 'Creación de cuenta', 'Tipo de cuenta']
+           'CUIT', 'IIBB', 'Fecha de inicio', 'Rubro', 'IVA', 'Creación de cuenta', 'Tipo de cuenta']
     val = args.TYPE_ACCOUNT
-    type_user = 'Admin' if val == 1 else 'Checker'
-    check = CHECKERS.query.filter_by(BUSINESS_REF=g.user).all()
+    type_user = 'Free' if val == 1 else 'Premium'
 
     return {
         key[0]: args.USERNAME,
@@ -195,9 +197,8 @@ def create_user_dict(args) -> dict:
         key[8]: args.BEGIN_DATE,
         key[9]: args.ITEM,
         key[10]: args.IVA,
-        key[12]: args.CREATE_AT,
-        key[13]: type_user,
-        key[11]: check,
+        key[11]: args.CREATE_AT,
+        key[12]: type_user,
     }
 
 
@@ -303,6 +304,7 @@ def update_admin():
             u.ADDRESS = d['ADDRESS'] if u.ADDRESS != d['ADDRESS'] else u.ADDRESS
             u.PHONE = d['PHONE'] if u.PHONE != d['PHONE'] else u.PHONE
             u.EMAIL = d['EMAIL'] if u.EMAIL != d['EMAIL'] else u.EMAIL
+            u.PIN = d['PIN'] if u.PIN != d['PIN'] else u.PIN
             ud = True
     except:
         c = CHECKERS.query.filter_by(NAME=g.check).first()
@@ -341,7 +343,11 @@ def checker(option='logout'):
             NAME=name).filter_by(SURNAME=surname).filter_by(PIN=r['PIN']).first()
         if c:
             g.check = session['checker'] = name
-            flash(f"Hola, {g.check} debes abrir caja", "success")
+            q = REGISTER_OC.query.filter_by(NAME_CHECK=g.check).all()[-1]
+            if q.DATE_CLOSE:
+                flash(f"Hola, {g.check} debes abrir caja", "success")
+            else:
+                flash(f"Abrió caja {q.DATE_OPEN}", "info")
             return redirect(url_for('User', user=g.user, checker=g.check, action='check'))
         flash("Pin ingresado es incorrecto, si olvidaste el Pin contactate con el administrador", "danger")
         return redirect(url_for('index'))
@@ -377,13 +383,40 @@ def checker(option='logout'):
             q = REGISTER_OC.query.filter_by(ID=g.idOpen).first()
             q.DATE_CLOSE = dt.today().strftime("%d-%m-%Y %H:%M:%S")
             q.AMOUNT_CLOSE = r['close']
-            q.AMOUNT_TOTAL = q.AMOUNT_OPEN - float(r['close'])
+            q.AMOUNT_TOTAL = float(r['close']) - q.AMOUNT_OPEN
             db.session.add(q), db.session.commit()
             session.pop('idOpen', None)
             flash("Caja cerró con éxito", "success")
         else:
             flash("No se abrió caja aún", "warning")
         return redirect(url_for('index'))
+    if option == 'edit' and request.method == 'POST':
+        a = request.args['values']
+        r = request.form
+        q = CHECKERS.query.filter_by(ID=a).first()
+        q.NAME = r['NAME'] if q.NAME != r['NAME'] else q.NAME
+        q.SURNAME = r['SURNAME'] if q.SURNAME != r['SURNAME'] else q.SURNAME
+        q.BIRTH_DAY = r['BIRTH_DAY'] if q.BIRTH_DAY != r['BIRTH_DAY'] else q.BIRTH_DAY
+        q.ADDRESS = r['ADDRESS'] if q.ADDRESS != r['ADDRESS'] else q.ADDRESS
+        q.PHONE = r['PHONE'] if q.PHONE != r['PHONE'] else q.PHONE
+        q.EMAIL = r['EMAIL'] if q.EMAIL != r['EMAIL'] else q.EMAIL
+        q.PIN = r['PIN'] if q.PIN != r['PIN'] else q.PIN
+        db.session.add(q)
+        db.session.commit()
+        flash("Datos actualizados", "success")
+    if option == 'new' and request.method == 'POST':
+        r = request.form
+        q = CHECKERS(NAME=r['NAME'], SURNAME=r['SURNAME'], BIRTH_DAY=r['BIRTH_DAY'],
+                     ADDRESS=r['ADDRESS'], PHONE=r['PHONE'], EMAIL=r['EMAIL'], PIN=r['PIN'], BUSINESS_REF=g.user)
+        db.session.add(q)
+        db.session.commit()
+        flash("Nuevo cajero registrado", "success")
+    if option == 'delete':
+        q=CHECKERS.query.filter_by(BUSINESS_REF=g.user).filter_by(ID=request.args['values']).first()
+        db.session.delete(q)
+        db.session.commit()
+        flash("Cajero %s fué eliminado" % q.NAME, "danger")
+    return redirect(url_for('User', user=g.user, checker=g.check, action='admin'))
 
 
 def admin_check(user):
@@ -405,14 +438,14 @@ def User(user=None, checker=None, action=None):
         if checker == g.check and g.check:
             if action:
                 if action == 'sell':
-                    return render_template("application/sells.html", title='Ventas')
+                    openAt = None
+                    if g.idOpen:
+                        openAt= REGISTER_OC.query.filter_by(ID=g.idOpen).first().DATE_OPEN.split(' ')[1]
+                    return render_template("application/sells.html", title='Ventas',openAt=openAt)
                 if action == 'admin':
                     if admin_check(g.check):
-                        #Agregar <select><option> con los cajeros para modificarlos o agregar o borrar
-                        #el boton borrar salta alerta diciendo OK o No
-                        #el input debe ocupar todo el ancho de la pantalla, posicionarlo al final
                         return render_template('application/admin.html', user=create_user_dict(
-                            MYBUSINESS.query.filter_by(USERNAME=g.user).first()), checkers=CHECKERS.query.filter_by(BUSINESS_REF=g.user).all(), data=DATA)
+                            MYBUSINESS.query.filter_by(USERNAME=g.user).first()), checkers=CHECKERS.query.filter_by(BUSINESS_REF=g.user).all(), data=DATA,randomPin=ra())
                     else:
                         flash(
                             "No tenes permisos suficientes para esta función", "warning")
@@ -421,8 +454,8 @@ def User(user=None, checker=None, action=None):
                     # pasar admincheck si es verdadero que liste todas las
                     # estadisticas de todos los cajeros (el inclusive)
                     # sino solo mostrar las estadisticas de ese cajero
-                    ocheck= REGISTER_OC.query.filter_by(ID=g.idOpen).first()
-                    return render_template("application/checkers.html", title='Caja' , ocheck=ocheck)
+                    ocheck = REGISTER_OC.query.filter_by(ID=g.idOpen).first()
+                    return render_template("application/checkers.html", title='Caja', ocheck=ocheck)
                 if action == 'clients':
                     return render_template("application/clients.html", title='Clientes')
                 if action == 'providers':
@@ -433,7 +466,9 @@ def User(user=None, checker=None, action=None):
                     print(request.args)
                     return render_template("application/list.html")
                 if action == 'modify':
-                    return render_template("application/modify.html")
+                    q = CHECKERS.query.filter_by(
+                        BUSINESS_REF=g.user).filter_by(NAME=g.check).first()
+                    return render_template("application/modify.html", user=q)
             else:
                 if request.path == ('/app/'+g.user+'/'+g.check):
                     return render_template("app.html")
