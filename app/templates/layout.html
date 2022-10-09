@@ -27,7 +27,8 @@
     {% if g.user %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary" role="tablist">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{url_for('index')}}" role="tab">{%if g.check%}{{g.user}}{%else%}Bienvenido{%endif%}</a>
+            <a class="navbar-brand" href="{{url_for('index')}}" role="tab">{%if
+                g.check%}{{g.user}}{%else%}Bienvenido{%endif%}</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
                 aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -36,36 +37,52 @@
             <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Caja'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='check')}}" role="tab">Caja</a>
+                        <a class="nav-link {%if title == 'Caja'%}active{%endif%}"
+                            href="{{url_for('User',user=g.user,checker=g.check,action='check')}}" role="tab">Caja</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Ventas'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='sell')}}" role="tab">Ventas
+                        <a class="nav-link {%if title == 'Ventas'%}active{%endif%}"
+                            href="{{url_for('User',user=g.user,checker=g.check,action='sell')}}" role="tab">Ventas
                             <span class="visually-hidden">(current)</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Clientes'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='clients')}}" role="tab">Clientes</a>
+                        <a class="nav-link {%if title == 'Clientes'%}active{%endif%}"
+                            href="{{url_for('User',user=g.user,checker=g.check,action='clients')}}"
+                            role="tab">Clientes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Proveedores'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='providers')}}" role="tab">Proveedores</a>
+                        <a class="nav-link {%if title == 'Proveedores'%}active{%endif%}"
+                            href="{{url_for('User',user=g.user,checker=g.check,action='providers')}}"
+                            role="tab">Proveedores</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Artículos'%}active{%endif%}" href="{{url_for('User',user=g.user,checker=g.check,action='articles')}}" role="tab">Artículos</a>
+                        <a class="nav-link {%if title == 'Artículos'%}active{%endif%}"
+                            href="{{url_for('User',user=g.user,checker=g.check,action='articles')}}"
+                            role="tab">Artículos</a>
                     </li>
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {%if title == 'Listas'%}active{%endif%}" data-bs-toggle="dropdown" href="#" role="button"
-                            aria-haspopup="true" aria-expanded="false">Listas</a>
+                    <!-- <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {%if title == 'Listas'%}active{%endif%}"
+                            data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                            aria-expanded="false">Listas</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='costs')}}">Precios</a>
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='articles')}}">Artículos</a>
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='sells')}}">Ventas del día</a>
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='clients')}}">Clientes</a>
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='providers')}}">Proveedores</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='list',q='costs')}}">Precios</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='list',q='articles')}}">Artículos</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='list',q='sells')}}">Ventas
+                                del día</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='list',q='clients')}}">Clientes</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='list',q='providers')}}">Proveedores</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='stadistics')}}">Estadísticas</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='list',q='stadistics')}}">Estadísticas</a>
                         </div>
-                    </li>
+                    </li> -->
                 </ul>
                 {% if g.check %}
                 <ul class="nav nav-pills flex-column">
@@ -73,9 +90,15 @@
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
                             aria-haspopup="true" aria-expanded="false" style="color:#fff">{{g.check}}</a>
                         <div class="dropdown-menu" style="">
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='list',q='stadistics')}}">Ver estadisticas</a>
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='modify')}}">Modificar datos</a>
-                            <a class="dropdown-item" href="{{url_for('User',user=g.user,checker=g.check,action='admin')}}">Panel administrador</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='list',q='stadistics')}}">Ver
+                                estadisticas</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='modify')}}">Modificar
+                                datos</a>
+                            <a class="dropdown-item"
+                                href="{{url_for('User',user=g.user,checker=g.check,action='admin')}}">Panel
+                                administrador</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{url_for('checker',option='logout')}}">Cerrar caja</a>
                         </div>
@@ -90,7 +113,7 @@
             </div>
         </div>
     </nav>
-<br>
+    <br>
     {% endif %}
     {% block body %}
     {% endblock %}
