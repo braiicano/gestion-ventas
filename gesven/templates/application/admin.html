@@ -1,0 +1,32 @@
+{% from 'macros.html' import show_checker %}
+{% extends "layout.html" %}
+{% block title%}-Admin{% endblock %}
+{% block body %}
+
+<div class="container">
+    <form action="{{url_for('admin',option='update')}}" method="post" class="row">
+        <fieldset class="col-xxl-10">
+            <legend>Panel de administrador</legend>
+        </fieldset>
+        {% for k,v in user.items() %}
+        <div class="form-group col-sm-4 row mt-1">
+            {%if 'usuario' in k or 'cuenta' in k%}<fieldset disabled>{%endif%}
+                <div class="form-floating">
+                    <input type={%if 'Fecha' in k%}"date"{% elif 'CUIT' in k or 'Teléfono' in k
+                        %}"number"{%else%}"text"{%endif%} class="form-control" id="floatingInput" placeholder="{{k}}"
+                        {%if v%}value="{{v}}" {%endif%} name="{{data[loop.index0]}}">
+                    <label for="floatingInput">{{k}}</label>
+                </div>
+                {%if 'usuario' in k or 'cuenta' in k%}
+            </fieldset>{%endif%}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-info col-sm-4 my-2 ">Guardar cambios</button>
+    </form>
+</div>
+<br>
+{{show_checker( checkers ,randomPin)}}
+{% endblock %}
+{% block scriptjs %}
+<script src="{{url_for('static',filename='js/alerts.js')}}"></script>
+{% endblock scriptjs %}

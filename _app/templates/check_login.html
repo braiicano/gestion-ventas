@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block title %}-{{g.user}}{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="container row">
+        <h1 class="col-xx-4 text-center">{{g.user}}</h1>
+    </div>
+    {% if change %}
+    <div class="container">
+        <h3> Configuremos tus datos de administrador </h3>
+        <p> Ingrese para continuar: </p>
+        <form action="{{url_for('checker',option='admin',values='create')}}" method="post" class="form-group row">
+            {% for k,v in data.items() %}
+            <div class="form-group col-md-4 mt-1">
+                <div class="form-floating">
+                    {% if 'Tipo' in k or 'Pin' in k %}
+                    <fieldset>
+                        <input class="form-control" id="readOnlyInput" type="text" placeholder={%if 'Tipo' in
+                            k%} "{{admin[0]}}" {% else %} "{{admin[1]}}" {%endif%} readonly="">
+                    </fieldset>
+                    <span class="badge bg-info">Este es tu {% if 'Tipo' in k %}nivel{%else%}pin{%endif%} de
+                        acceso</span>
+                    {%else%}
+                    <input type={%if 'Fecha' in k%}"date"{% elif 'Teléfono' in k %}"number"{%else%}"text"{%endif%}
+                        class="form-control" id="floatingInput" placeholder="{{k}}" name="{{v}}">
+                    <label for="floatingInput">{{k}}</label>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor%}
+            <button type="submit" class="btn btn-info col-md mt-2 mx" onclick="alertPin({{ admin[1] }})">Guardar
+                cambios</button>
+        </form>
+    </div>
+    {% else %}
+    {% if not g.check %}
+    <div class="row" style="text-align:center">
+        <div class="card text-white bg-dark mb-3 col-xxl-10">
+            <div class="card-header">Para ingresar debe indicar su pin</div>
+            <div class="card-body">
+                <h4 class="card-title">Seleccione su nombre</h4>
+                <form action="{{url_for('checker',option='login')}}" method="post"
+                    class="row justify-content-md-center">
+                    <select class="col-md-4" id="exampleSelect1" name="CHECKER" autofocus>
+                        <option value="">--Seleccione su usuario--</option>
+                        {% for i in checkers %}<option value="{{i.NAME}}/{{i.SURNAME}}">{{i.NAME}} {{i.SURNAME}}</option>{% endfor %}
+                    </select>
+                    <input type="number" class="col" placeholder="Ingrese su pin" id="inputDefault" name="PIN"
+                        maxlength="4">
+                    <button type="submit" class="btn btn-light col-sm-4">Ingresar</button>
+                </form>
+                <p class="card-text">Si olvidó el PIN, puede revisar en su casilla de correo o hable con el
+                    administrador de
+                    grupo</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif%}
+{% endblock %}

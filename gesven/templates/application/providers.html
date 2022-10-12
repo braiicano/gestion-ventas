@@ -1,0 +1,9 @@
+{% from 'macros.html' import show_providers%}
+{% extends "layout.html" %} {% block title %}-Proveedores{% endblock %} {% block body %}
+<div class="container-fluid">
+  {{ show_providers(list_providers) }}
+</div>
+{% endblock %} 
+<!-- {% block scriptjs %}
+<script src="{{url_for('static',filename='js/app.js')}}"></script> 
+{% endblock %} -->

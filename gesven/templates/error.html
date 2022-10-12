@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block stylecss %}
+	<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/error.css') }}>
+{% endblock %}
+{% block title %}-Error{% endblock %}
+{% block body %}
+	<div class="card mb-3" style="text-align:center">
+		<h3 class="card-header">Página no encontrada</h3>
+		<div class="card-body">
+			<img src="https://i.pinimg.com/originals/a8/12/1a/a8121abee959e18cbad25ad4046f76d8.gif" alt="Error 404" width="30%">
+		</div>
+		<div class="card-body">
+			<a href="/"><h3 class="btn btn-info go-back">Volver al inicio</h3></a>
+		</div>
+	
+{% endblock %}

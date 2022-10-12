@@ -1,0 +1,9 @@
+{% from 'macros.html' import show_clients %}
+{% extends "layout.html" %} {% block title %}-Clientes{% endblock %} {% block body %}
+<div class="container-fluid">
+  {{ show_clients(list_clients) }}
+</div>
+{% endblock %} 
+<!-- {% block scriptjs %}
+<script src="{{url_for('static',filename='js/app.js')}}"></script> 
+{% endblock %} -->

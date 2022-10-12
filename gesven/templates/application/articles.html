@@ -1,0 +1,7 @@
+{% from 'macros.html' import show_articles %}
+{% extends "layout.html" %} {% block title %}-Artículos{% endblock %} {% block body %}
+  {{ show_articles(list_articles) }}
+{% endblock %} 
+<!-- {% block scriptjs %}
+<script src="{{url_for('static',filename='js/app.js')}}"></script> 
+{% endblock %} -->

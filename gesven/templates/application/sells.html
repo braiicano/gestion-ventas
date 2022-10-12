@@ -1,0 +1,30 @@
+{% extends "layout.html" %} {% block title %}-Ventas{% endblock %}
+{% block body %}
+<div class="container">
+    {% if g.idOpen %}
+    <legend class="row">Apertura de caja realizado a las {{openAt}}</legend class="row">
+
+    {% else %}
+    <div class="position-relative">
+        <div class="position-absolute top-0 start-50 translate-middle-x card text-white bg-dark" style=" max-width:30em">
+            <div class="card-body">
+                <a href="{{url_for('User',user=g.user,checker=g.check,action='check')}}"
+                    class="list-group-item list-group-item-action flex-column align-items-start active">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="m-4">Aún no abriste caja</h5>
+                        <small class="m-3">Por favor haga click aquí para abrir caja</small>
+                    </div>
+                    <p class="mb-1 p-4">Para poder realizar ventas, primero tienes que abrir caja, haciendo click en este panel
+                        o en el panel <b>Caja</b></p>
+                    <small id="open-date">date</small>
+                    <small id="open-time">00:00:00</small>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block scriptjs %}
+<script src="{{url_for('static',filename='js/clock.js')}}"></script>
+{% endblock scriptjs %}
