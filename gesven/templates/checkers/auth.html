@@ -1,0 +1,102 @@
+{% from 'macros.html' import render_input,render_informes,render_list %}
+{% extends 'layout.html' %}
+{% block title %}-Iniciar interno{% endblock title %}
+{% block body %}
+<div class="container">
+    <div class="navbar navbar-dark bg-primary navbar-expand-lg justify-content-around">
+        <h2 class="navbar-brand">Bienvenido <b>{{g.session}}</b></h2>
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a href="{{url_for('auth.logout')}}" class="navbar-brand nav-link">Salir</a>
+            </li>
+        </ul>
+    </div>
+    <br>
+    {% if not g.check_session %}
+    {{render_informes(text='Éste es tu primer inicio, te vamos a pedir algunos datos para configurar tu cuenta de
+    administrador.
+    Para tu seguridad los datos almacenados cuentan con cifrado doble, además, tu información no es expuesta,
+    solo son cadenas de caracteres en nuestra base de datos.')}}
+    <div class="container">
+        <form action="{{url_for('checker.add_checker',option='admin')}}" method="post" class="form-group">
+            <legend>Complete con sus datos</legend>
+            <div class="row">
+                <div class="col-md-4">
+                    {{render_input('name','Nombre/s')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('surname','Apellido/s')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('birth_day','Fecha de nacimiento','date')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('du','DNI','number')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('phone','Teléfono','phone')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('email','Email','email')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('addr_country','Pais residente')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('addr_city','Ciudad residente')}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('addr_street','Dirección')}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{render_input('level','Nivel de acceso',value='Admin',readonly=true)}}
+                </div>
+                <div class="col-md-4">
+                    {{render_input('pin','Pin de acceso','number',value=g.PIN)}}
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div style="width:100%">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            Guardar datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Para continuar, ingresa el pin:</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {{render_input('confirm-pin','Confirmar pin','number')}}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <input id="submit-form" type="submit" class="btn btn-primary disabled" value="Guardar datos">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% block javascript %}
+    <script id='modal-js' src="{{url_for('static',filename='script/modal.js')}}"></script>
+    <script src="{{url_for('static',filename='script/check.js')}}"></script>
+    {% endblock javascript %}
+    {% else %}
+    <div class="container bg-secondary p-3">
+        <h3>Seleccione su usuario:</h3>
+        <form action="{{url_for('checker.users',option='login')}}" method="post">
+            {{render_list()}}
+        </form>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock body %}
