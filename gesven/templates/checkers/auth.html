@@ -22,39 +22,39 @@
             <legend>Complete con sus datos</legend>
             <div class="row">
                 <div class="col-md-4">
-                    {{render_input('name','Nombre/s')}}
+                    {{render_input('NAME','Nombre/s')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('surname','Apellido/s')}}
+                    {{render_input('SURNAME','Apellido/s')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('birth_day','Fecha de nacimiento','date')}}
+                    {{render_input('BIRTH_DAY','Fecha de nacimiento','date')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('du','DNI','number')}}
+                    {{render_input('DU','DNI','number')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('phone','Teléfono','phone')}}
+                    {{render_input('PHONE','Teléfono','phone')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('email','Email','email')}}
+                    {{render_input('EMAIL','Email','email')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('addr_country','Pais residente')}}
+                    {{render_input('ADDR_COUNTRY','Pais residente')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('addr_city','Ciudad residente')}}
+                    {{render_input('ADDR_CITY','Ciudad residente')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('addr_street','Dirección')}}
+                    {{render_input('ADDR_STREET','Dirección')}}
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    {{render_input('level','Nivel de acceso',value='Admin',readonly=true)}}
+                    {{render_input('LEVEL','Nivel de acceso',value='Admin',readonly=true)}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('pin','Pin de acceso','number',value=g.PIN)}}
+                    {{render_input('PIN','Pin de acceso','number',value=g.PIN)}}
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <div style="width:100%">
@@ -74,7 +74,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            {{render_input('confirm-pin','Confirmar pin','number')}}
+                            {{render_input('CONFIRM-PIN','Confirmar pin','number')}}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

@@ -1,0 +1,85 @@
+{% from 'macros.html' import show_checker,render_input %}
+{% extends "layout.html" %}
+{% block title%}-Admin{% endblock %}
+{% block body %}
+
+<div class="container">
+    <form action="{{url_for('checker.users',option='admin')}}" method="post" class="row">
+        <fieldset class="col-xxl-10">
+            <legend>Panel de administrador</legend>
+        </fieldset>
+        <div class="row">
+            <div class="col">
+                {{render_input('1SERNAME','Usuario',value=g.admin['USERNAME'],readonly=true)}}
+            </div>
+            <div class="col">
+                {{render_input('PASSWORD','Contraseña',type='password')}}
+            </div>
+            <div class="col">
+                {{render_input('TYPE_ACCOUNT','Tipo de cuenta',value='Free' if g.admin.TYPE_ACCOUNT==1 else
+                'Premium',readonly=true)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('EMAIL','Email','email',value=g.admin.EMAIL)}}
+            </div>
+            <div class="col">
+                {{render_input('PHONE','Teléfono','tel',value=g.admin.PHONE)}}
+            </div>
+            <div class="col">
+                {{render_input('BEGIN_TIME','Fecha de inicio','date',value=g.admin.BEGIN_TIME)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('ADDR_STREET','Calle y altura',value=g.admin.ADDR_STREET)}}
+            </div>
+            <div class="col">
+                {{render_input('ADDR_CITY','Localidad',value=g.admin.ADDR_CITY)}}
+            </div>
+            <div class="col">
+                {{render_input('ADDR_COUNTRY','País',value=g.admin.ADDR_COUNTRY)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('FISCAL_NAME','Nombre fiscal',value=g.admin.FISCAL_NAME)}}
+            </div>
+            <div class="col">
+                {{render_input('BUSINESS_NAME','Nombre comercial',value=g.admin.BUSINESS_NAME)}}
+            </div>
+            <div class="col">
+                {{render_input('CUIT','Cuit','number',value=g.admin.CUIT)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('IIBB','Ingresos Brutos',value=g.admin.IIBB)}}
+            </div>
+            <div class="col">
+                {{render_input('IVA','Condición IVA',value=g.admin.IVA)}}
+            </div>
+            <div class="col">
+                {{render_input('ITEM','Rubro',value=g.admin.ITEM)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('CREATED_AT','Fecha de
+                creación',type='datetime',value=g.admin.CREATED_AT,readonly=true)}}
+            </div>
+            <div class="col d-flex justify-content-center align-items-end">
+                <div class="row" style="width: 80%;">
+                    {{render_input('',type='submit')}}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<br>
+{{show_checker( g.list_checkers ,g.pin)}}
+{% endblock %}
+{% block scriptjs %}
+<script src="{{url_for('static',filename='js/alerts.js')}}"></script>
+{% endblock scriptjs %}

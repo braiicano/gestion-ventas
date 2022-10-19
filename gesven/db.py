@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as dt
-
+# CONVERTIR LOS __repr__() en DICT para al llamarlo tener acceso a todos los valores
 database = SQLAlchemy()
 
 LINK_REGISTER = database.Table('LINK_REGISTER',
@@ -28,7 +28,10 @@ class Base(database.Model):
         database.String, default=dt.today().strftime("%Y-%m-%d %H:%M:%S"))
 
     def __repr__(self) -> str:
-        return f"{self.NAME}"
+        self.DICT = {"ID": self.ID, "NAME": self.NAME, "SURNAME": self.SURNAME, "ADDR_STREET": self.ADDR_STREET,
+                     "ADDR_CITY": self.ADDR_CITY, "ADDR_COUNTRY": self.ADDR_COUNTRY, "PHONE": self.PHONE,
+                     "EMAIL": self.EMAIL, "DU": self.DU, "LAST_UPDATE": self.LAST_UPDATE, "CREATED_AT": self.CREATED_AT}
+        return f"{self.DICT}"
 
 
 class MYBUSINESS(database.Model):
@@ -45,7 +48,7 @@ class MYBUSINESS(database.Model):
     BUSINESS_NAME = database.Column(database.String(50))
     CUIT = database.Column(database.Integer, unique=True)
     IIBB = database.Column(database.Float)
-    BEGIN_TIME = database.Column(database.DateTime)
+    BEGIN_TIME = database.Column(database.Date)
     ITEM = database.Column(database.String(50))  # In future is a list of items
     IVA = database.Column(database.Float)
     CREATED_AT = database.Column(
@@ -54,7 +57,12 @@ class MYBUSINESS(database.Model):
         database.Integer, default=1)  # 1 is free / 2 is premium
 
     def __repr__(self) -> str:
-        return f'{self.USERNAME}'
+        self.DICT = {"ID": self.ID, "USERNAME": self.USERNAME, "EMAIL": self.EMAIL, "ADDR_STREET": self.ADDR_STREET,
+                     "ADDR_CITY": self.ADDR_CITY, "ADDR_COUNTRY": self.ADDR_COUNTRY, "PHONE": self.PHONE,
+                     "EMAIL": self.EMAIL, "FISCAL_NAME": self.FISCAL_NAME, "BUSINESS_NAME": self.BUSINESS_NAME,
+                     "CUIT": self.CUIT, "IIBB": self.IIBB, "BEGIN_TIME": self.BEGIN_TIME, "ITEM": self.ITEM,
+                     "IVA": self.IVA, "TYPE_ACCOUNT": self.TYPE_ACCOUNT, "CREATED_AT": self.CREATED_AT}
+        return f'{self.DICT}'
 
 
 class INVOICE(database.Model):
@@ -73,8 +81,8 @@ class INVOICE(database.Model):
         database.Integer, database.ForeignKey('CLIENTS.ID'))
     # CHECKER_REL = database.relationship(
     #     'CHECKERS', backref=database.backref('INVOICE'))
-    CLIENT_REL = database.relationship(
-        'CLIENTS', backref=database.backref('INVOICE', lazy=True))
+    # CLIENT_REL = database.relationship(
+    #     'CLIENTS', backref=database.backref('INVOICE', lazy=True))
 
     def __repr__(self) -> str:
         return f"{self.ID},{self.CHECKER_ID}"
@@ -87,8 +95,8 @@ class CHECKERS(Base):
     TYPE_USER = database.Column(database.Integer, default=1)
     BUSINESS_REF = database.Column(
         database.String(50), database.ForeignKey('MYBUSINESS.USERNAME'))
-    BUSINESS_REL = database.relationship(
-        'MYBUSINESS', backref=database.backref('CHECKERS', lazy=True))
+    # BUSINESS_REL = database.relationship(
+    #     'MYBUSINESS', backref=database.backref('CHECKERS', lazy=True))
 
 
 class CLIENTS(Base):
@@ -96,8 +104,8 @@ class CLIENTS(Base):
     INVOICES = database.Column(database.Integer)
     BUSINESS_REF = database.Column(
         database.String(50), database.ForeignKey('MYBUSINESS.USERNAME'))
-    BUSINESS_REL_CLIENTS = database.relationship(
-        'MYBUSINESS', backref=database.backref('CLIENTS', lazy=True))
+    # BUSINESS_REL_CLIENTS = database.relationship(
+    #   'MYBUSINESS', backref=database.backref('CLIENTS', lazy=True))
 
 
 class PROVIDERS(database.Model):
@@ -113,8 +121,8 @@ class PROVIDERS(database.Model):
     CUIT = database.Column(database.Integer)
     BUSINESS_REF = database.Column(
         database.String(50), database.ForeignKey('MYBUSINESS.USERNAME'))
-    BUSINESS_REL = database.relationship(
-        'MYBUSINESS', backref=database.backref('PROVIDERS', lazy=True))
+    # BUSINESS_REL = database.relationship(
+    #     'MYBUSINESS', backref=database.backref('PROVIDERS', lazy=True))
 
     def __repr__(self) -> str:
         return f"{self.NAME}"
@@ -138,7 +146,7 @@ class ARTICLES(database.Model):
     BUSINESS_REF = database.Column(
         database.String(50), database.ForeignKey('PROVIDERS.BUSINESS_REF'))
     # PROVIDER_REL = database.relationship(
-        # 'PROVIDERS', backref=database.backref('ARTICLES', lazy=True), foreign_keys=('PROVIDER','BUSINESS_REF'))
+    # 'PROVIDERS', backref=database.backref('ARTICLES', lazy=True), foreign_keys=('PROVIDER','BUSINESS_REF'))
     LAST_UPDATE = database.Column(
         database.DateTime, default=dt.today().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -164,13 +172,13 @@ class ORDER_DETAILS(database.Model):
 class REGISTER_OC(database.Model):
     __nametable__ = 'REGISTER_OC'
     ID = database.Column(database.Integer, primary_key=True)
-    OPEN_DATE = database.Column(database.Date)
-    OPEN_HOUR = database.Column(database.Time)
-    OPEN_AMOUNT = database.Column(database.Float)
-    CLOSE_DATE = database.Column(database.Date)
-    CLOSE_HOUR = database.Column(database.Time)
-    CLOSE_AMOUNT = database.Column(database.Float)
-    TOTAL_AMOUNT = database.Column(database.Float)
+    OPEN_DATE = database.Column(database.String(30))
+    OPEN_TIME = database.Column(database.String(30))
+    OPEN_AMOUNT = database.Column(database.String(30))
+    CLOSE_DATE = database.Column(database.String(30))
+    CLOSE_TIME = database.Column(database.String(30))
+    CLOSE_AMOUNT = database.Column(database.String(30))
+    TOTAL_AMOUNT = database.Column(database.String(30))
 
     def __repr__(self) -> str:
         return f"{self.ID}"

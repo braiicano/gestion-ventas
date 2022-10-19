@@ -1,5 +1,9 @@
 const modalClose = document.getElementById("modal-info-close");
-modalClose.addEventListener("click", () => {
-  document.getElementById("modal-info").remove();
+if (modalClose != null) {
+  modalClose.addEventListener("click", () => {
+    document.getElementById("modal-info").remove();
+    document.getElementById("modal-js").remove();
+  });
+} else {
   document.getElementById("modal-js").remove();
-});
+}

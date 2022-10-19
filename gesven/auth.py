@@ -20,11 +20,11 @@ def verify_form(values: dict, option: str = ''):
         else:
             verify = True
     if verify:
-        db = MYBUSINESS.query.filter_by(USERNAME=values['username']).first()
+        db = MYBUSINESS.query.filter_by(USERNAME=values['USERNAME']).first()
         if option == 'login':
             if None != db:
-                if check_password_hash(db.PASSWORD, values['password']):
-                    g.session = session['new_session'] = values['username']
+                if check_password_hash(db.PASSWORD, values['PASSWORD']):
+                    g.session = session['new_session'] = values['USERNAME']
                     session['id_business'] = db.ID
                     return True
                 else:
@@ -34,14 +34,14 @@ def verify_form(values: dict, option: str = ''):
         elif option == 'signup':
             if None == db:
                 email = MYBUSINESS.query.filter_by(
-                    EMAIL=values['email']).first()
+                    EMAIL=values['EMAIL']).first()
                 if None == email:
-                    if values['password'] == values['confirm-password']:
-                        new_user = MYBUSINESS(USERNAME=values['username'], PASSWORD=lock(
-                            values['password']), EMAIL=values['email'])
+                    if values['PASSWORD'] == values['CONFIRM-PASSWORD']:
+                        new_user = MYBUSINESS(USERNAME=values['USERNAME'], PASSWORD=lock(
+                            values['PASSWORD']), EMAIL=values['EMAIL'])
                         database.session.add(new_user)
                         database.session.commit()
-                        g.session = session['new_session'] = values['username']
+                        g.session = session['new_session'] = values['USERNAME']
                         session['id_business'] = MYBUSINESS.query.filter_by(
                             USERNAME=g.session).first().ID
                         return redirect(url_for('checker.auth'))
@@ -50,7 +50,7 @@ def verify_form(values: dict, option: str = ''):
                 else:
                     flash('Ya existe el email ingresado', 'info')
             else:
-                flash('Ya existe el usuario "%s"' % values['username'], 'info')
+                flash('Ya existe el usuario "%s"' % values['USERNAME'], 'info')
 
 
 @bp_auth.route('/', methods=['GET', 'POST'])
@@ -71,5 +71,7 @@ def logout():
     session.pop('new_session', None)
     session.pop('checker',None)
     session.pop('id_business',None)
+    session.pop('type', None)
+    session.pop('id_checker', None)
     flash('Cerraste sesion con éxito', 'info')
     return redirect(url_for('auth.auth'))

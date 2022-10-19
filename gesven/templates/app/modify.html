@@ -1,0 +1,50 @@
+{% from 'macros.html' import render_input %}
+{% extends 'layout.html' %}
+{% block title %}-Modificar mis datos{% endblock %}
+{% block body %}
+<div class="container">
+    <legend>Modificar mis datos</legend>
+    <form action="{{url_for('checker.users',option='update',values=g.modify.ID)}}" method="post">
+        <div class="row">
+            <div class="col">
+                {{render_input('NAME','Nombre',value=g.modify.NAME)}}
+            </div>
+            <div class="col">
+                {{render_input('SURNAME','Apellido',value=g.modify.SURNAME)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('DU','Documento',type='number',value=g.modify.DU)}}
+            </div>
+            <div class="col">
+                {{render_input('BIRTH_DAY','Fecha de nacimiento',type='date',value=g.modify.BIRTH_DAY)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('ADDR_STREET','Calle y altura',value=g.modify.ADDR_STREET)}}
+            </div>
+            <div class="col">
+                {{render_input('ADDR_CITY','Localidad',value=g.modify.ADDR_CITY)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('PHONE','Teléfono',type='tel',value=g.modify.PHONE)}}
+            </div>
+            <div class="col">
+                {{render_input('EMAIL','Email',type="email",value=g.modify.EMAIL)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{render_input('PIN','PIN',type='number',value=g.modify.PIN)}}
+            </div>
+            <div class="col row px-5 py-5">
+                <button type="submit" class="btn btn-outline-info text-center">Guardar cambios</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock body %}
