@@ -26,6 +26,7 @@ def before_request():
     print(session)
     if 'new_session' in session:
         g.session = session['new_session']
+        g.today = db.dt.today().date()
         if 'checker' in session:
             g.user = session['checker']
         else:
@@ -38,13 +39,15 @@ def before_request():
             g.check_id = None
         if 'status_check' in session:
             g.status_check = session['status_check']
-
+        else:
+            g.status_check = 'CLOSE'
     else:
         g.session = None
         g.user = None
         g.type_user = None
         g.check_id = None
         g.status_check = None
+
 
 @app.route('/')
 def index():
@@ -53,9 +56,11 @@ def index():
     else:
         return redirect(url_for('auth.auth'))
 
+
 @app.errorhandler(404)
 def error_404(e):
-    return render_template('error.html',error=True),404
+    return render_template('error.html', error=True), 404
+
 
 if __name__ == '__main__':
     db.database.init_app(app)

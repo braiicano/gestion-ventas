@@ -68,10 +68,11 @@ def auth():
 
 @bp_auth.route('/logout')
 def logout():
-    session.pop('new_session', None)
     session.pop('checker',None)
     session.pop('id_business',None)
-    session.pop('type', None)
     session.pop('id_checker', None)
+    session.pop('new_session', None)
+    session.pop('status_check', None)
+    session.pop('type', None)
     flash('Cerraste sesion con éxito', 'info')
     return redirect(url_for('auth.auth'))

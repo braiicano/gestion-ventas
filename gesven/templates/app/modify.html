@@ -4,7 +4,7 @@
 {% block body %}
 <div class="container">
     <legend>Modificar mis datos</legend>
-    <form action="{{url_for('checker.users',option='update',values=g.modify.ID)}}" method="post">
+    <form action="{{url_for('checker.users',option='update',values=g.modify.ID)}}" autocomplete="off" method="post">
         <div class="row">
             <div class="col">
                 {{render_input('NAME','Nombre',value=g.modify.NAME)}}

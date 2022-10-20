@@ -1,10 +1,11 @@
-{% macro render_input(name,name_input,type='text',value=none,readonly=none,id=none) %}
+{% macro render_input(name,name_input,type='text',value=none,readonly=none,id=none,req=none) %}
 <div class="form-group">
     {% if name %}<label class="col-form-label mt-4"
         for="{%if id%}{{id}}{%else%}inputDefault{%endif%}">{{name_input}}</label>{% endif %}
     <input type={{type}} class="form-control {% if type=='submit' %}btn btn-primary{% endif %}"
         id="{%if id%}{{id}}{%else%}inputDefault{%endif%}" {% if value %}value="{{value}}" {% endif %} name="{{name}}" {%
-        if readonly %}readonly="" {% endif %}>
+            if readonly %}readonly="" {% endif %}{%
+                if req %}required{% endif %}>
 </div>
 {% endmacro %}
 
@@ -47,7 +48,7 @@
         </select>
     </div>
     <div class="col">
-        {{render_input('PIN','Ingrese pin','new-password',id="PIN")}}
+        {{render_input('PIN','Ingrese pin','password',id="PIN")}}
     </div>
     <div class="col mt-3">
         {{render_input('submit','','submit')}}
@@ -61,9 +62,9 @@
 {% endmacro %}
 
 
-{% macro render_open_close_check(status,open_check=None) %}
+{% macro render_open_close_check(status) %}
 {% set name = 'close' if status=='cierre' else 'open' %}
-<div class="tab-pane fade {%if g.idOpen and status=='cierre'%}active show{% elif not g.idOpen and status=='apertura'%}active show{%endif%}"
+<div class="tab-pane fade {%if 'OPEN' in g.status_check and status=='cierre'%}active show{% elif 'CLOSE' in g.status_check and status=='apertura'%}active show{%endif%}"
     id={{name}} role="tabpanel">
     <div class="container row justify-content-center">
         <div class="card border-secondary mb-3" style="max-width: 30rem;">
@@ -72,10 +73,10 @@
                 <h5 class="card-title" id="{{name}}-date">date</h5>
                 <h5 class="card-title" id="{{name}}-time">00:00</h5>
             </div>
-            {% if open_check %}<div class="card-header">Abrió caja con ${{open_check.AMOUNT_OPEN}}</div>{%endif%}
+            {% if 'OPEN' in g.status_check %}<div class="card-header">Abrió caja con ${{g.status_check.split('|')[-1]}}</div>{%endif%}
             <div class="card-header">Indique monto de su caja</div>
             <div class="card-body">
-                <form action="{{url_for('control.control',option=name )}}" method="post">
+                <form action="{{url_for('control.control',option=name )}}" method="post" autocomplete="off">
                     <div class="form-group card-text">
                         <div class="input-group mb-3">
                             <span class="input-group-text">$</span>
@@ -110,14 +111,14 @@
                         <h1 class="modal-title fs-5" id="new-checkLabel">Registrar nuevo cajero</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('checker.add_checker',option='new')}}" method="post">
+                    <form action="{{url_for('checker.add_checker',option='new')}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-md">
-                                    {{render_input('NAME','Nombre/s')}}
+                                    {{render_input('NAME','Nombre/s *',req=true,id='NAME')}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('SURNAME','Apellido/s')}}
+                                    {{render_input('SURNAME','Apellido/s *',req=true,id='SURNAME')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -152,7 +153,7 @@
                                     {{render_input('LEVEL','Nivel de acceso',value='Cajero',readonly=true)}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('PIN','Pin de acceso','number',value=g.PIN)}}
+                                    {{render_input('PIN','Pin de acceso *','number',value=g.PIN,req=true,id='PIN')}}
                                 </div>
                             </div>
                         </div>
@@ -206,41 +207,41 @@
                             {{check.NAME}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('checker.add_checker',option='update')}}" method="post">
+                    <form action="{{url_for('checker.add_checker',option='update')}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-md">
-                                    {{render_input('NAME','Nombre/s')}}
+                                    {{render_input('NAME','Nombre/s *',req=true,id='NAME',value=check.NAME)}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('SURNAME','Apellido/s')}}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md">
-                                    {{render_input('BIRTH_DAY','Fecha de nacimiento','date')}}
-                                </div>
-                                <div class="col-md">
-                                    {{render_input('DU','DNI','number')}}
+                                    {{render_input('SURNAME','Apellido/s *',req=true,id='SURNAME',value=check.SURNAME)}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md">
-                                    {{render_input('PHONE','Teléfono','phone')}}
+                                    {{render_input('BIRTH_DAY','Fecha de nacimiento','date',value=check.BIRTH_DAY)}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('EMAIL','Email','email')}}
+                                    {{render_input('DU','DNI','number',value=check.DU)}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md">
-                                    {{render_input('ADDR_COUNTRY','Pais residente')}}
+                                    {{render_input('PHONE','Teléfono','tel',value=check.PHONE)}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('ADDR_CITY','Ciudad residente')}}
+                                    {{render_input('EMAIL','Email','email',value=check.EMAIL)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md">
+                                    {{render_input('ADDR_COUNTRY','Pais residente',value=check.ADDR_COUNTRY)}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('ADDR_STREET','Dirección')}}
+                                    {{render_input('ADDR_CITY','Ciudad residente',value=check.ADDR_CITY)}}
+                                </div>
+                                <div class="col-md">
+                                    {{render_input('ADDR_STREET','Dirección',value=check.ADDR_STREET)}}
                                 </div>
                             </div>
                             <div class="row">
@@ -248,7 +249,7 @@
                                     {{render_input('LEVEL','Nivel de acceso',value='Cajero',readonly=true)}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('PIN','Pin de acceso','number',value=g.PIN)}}
+                                    {{render_input('PIN','Pin de acceso *','number',value=check.PIN)}}
                                 </div>
                             </div>
                         </div>
@@ -285,19 +286,19 @@
                         <h1 class="modal-title fs-5" id="new-clientLabel">Registrar nuevo cliente</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('client.client',option='new')}}" method="post">
+                    <form action="{{url_for('client.client',option='new')}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('DOCUMENT','Número de documento',type='number', )}}
+                                    {{render_input('DOCUMENT','Número de documento *',type='number',req=true,id='DU' )}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre')}}
+                                    {{render_input('NAME','Nombre/s *',req=true,id='NAME')}}
                                 </div>
                                 <div class="col">
-                                    {{render_input('SURNAME','Apellido')}}
+                                    {{render_input('SURNAME','Apellido/s *',req=true,id='SURNAME')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -371,20 +372,20 @@
                             {{client.NAME}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('client.client',option='update',values=client.ID)}}" method="post">
+                    <form action="{{url_for('client.client',option='update',values=client.ID)}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('DOCUMENT','Número de documento',type='number',
-                                    value=client.DU)}}
+                                    {{render_input('DOCUMENT','Número de documento *',type='number',
+                                    value=client.DU, req=true, id='DU')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre', value=client.NAME)}}
+                                    {{render_input('NAME','Nombre', value=client.NAME,req=true, id='NAME')}}
                                 </div>
                                 <div class="col">
-                                    {{render_input('SURNAME','Apellido',value=client.SURNAME)}}
+                                    {{render_input('SURNAME','Apellido',value=client.SURNAME, req=true, id='SURNAME')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -439,16 +440,16 @@
                         <h1 class="modal-title fs-5" id="new-providerLabel">Registrar nuevo proveedor</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('provider.provider',option='new')}}" method="post">
+                    <form action="{{url_for('provider.provider',option='new')}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre')}}
+                                    {{render_input('NAME','Nombre proveedor *',req=true, id='DU')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME_CONTACT','Contacto')}}
+                                    {{render_input('NAME_CONTACT','Nombre/Contacto *',req=true, id='NAME')}}
                                 </div>
                                 <div class="col">
                                     {{render_input('ADDR_STREET','Calle y altura')}}
@@ -460,7 +461,7 @@
                             <div class="row">
                                 <div class="col">
                                     {{render_input('CUIT','Razón
-                                    social/CUIT')}}
+                                    social/CUIT *', req=true, id='PASS')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -519,17 +520,17 @@
                             {{provider.NAME}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('provider.provider',option='update',values=provider.ID)}}" method="post">
+                    <form action="{{url_for('provider.provider',option='update',values=provider.ID)}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre',value=provider.NAME)}}
+                                    {{render_input('NAME','Nombre proveedor *',value=provider.NAME, req=true, id='DU')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME_CONTACT','Nombre de contacto',
-                                    value=provider.NAME_CONTACT)}}
+                                    {{render_input('NAME_CONTACT','Nombre/Contacto',
+                                    value=provider.NAME_CONTACT, req=true, id='NAME')}}
                                 </div>
                                 <div class="col">
                                     {{render_input('ADDR_STREET','Calle y altura',value=provider.ADDR_STREET)}}
@@ -541,7 +542,7 @@
                             <div class="row">
                                 <div class="col">
                                     {{render_input('CUIT','Razón
-                                    social',value=provider.CUIT)}}
+                                    social *',value=provider.CUIT, req=true, id='PASS')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -587,11 +588,11 @@
                         <h1 class="modal-title fs-5" id="new-articleLabel">Registrar nuevo artículo</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('article.article',option='new')}}" method="post">
+                    <form action="{{url_for('article.article',option='new')}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre')}}
+                                    {{render_input('NAME','Nombre *',req=true, id='NAME')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -629,6 +630,7 @@
                                     {{render_input('COST','Costo',type='number')}}
                                 </div>
                                 <div class="col">
+                                    <!-- Automatizar este campo con COST -->
                                     {{render_input('PUBLIC_PRICE','Precio al público',type="number")}}
                                 </div>
                             </div>
@@ -710,11 +712,11 @@
                             {{article.NAME}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('article.article',option='update',values=article.ID)}}" method="post">
+                    <form action="{{url_for('article.article',option='update',values=article.ID)}}" method="post" autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre',value=article.NAME)}}
+                                    {{render_input('NAME','Nombre *',value=article.NAME,req=true, id='NAME')}}
                                 </div>
                             </div>
                             <div class="row">

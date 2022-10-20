@@ -1,7 +1,7 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
-from db import ARTICLES, CHECKERS, PROVIDERS, CLIENTS, MYBUSINESS
+from db import ARTICLES, CHECKERS, PROVIDERS, CLIENTS, MYBUSINESS, REGISTER_OC
 from checker import pin_generator
 
 bp_app = Blueprint('application', __name__, url_prefix='/app')
@@ -12,13 +12,24 @@ bp_app = Blueprint('application', __name__, url_prefix='/app')
 @bp_app.route("/<string:business>/<string:checker>")
 @bp_app.route("/<string:business>/<string:checker>/<string:action>")
 def application(business=None, checker=None, action=None):
-    print(action)
+    print(request.form)
     if not business or not checker or not action:
         return redirect(url_for('application.application', business=g.session, checker=g.user, action='sell'))
     else:
+        if 'CLOSE' in g.status_check:
+            print(g.check_id)
+            ver = CHECKERS.query.filter_by(ID=g.check_id).first()
+            if 'OPEN' in ver.STATUS_CHECK:
+                g.status_check = session['status_check'] = ver.STATUS_CHECK
+        g.action = action
         if action == 'sell':
             return render_template("app/sells.html")
         if action == 'check':
+            if g.type_user == 'admin':
+                g.total_register_oc = REGISTER_OC.query.filter_by(BUSINESS_REF=g.session).all()
+                g.list_checkers = CHECKERS.query.filter_by(BUSINESS_REF=g.session).all()
+            else:
+                g.register_oc = REGISTER_OC.query.filter_by(CHECKER_ID=g.check_id).filter_by(OPEN_DATE=g.today).all()
             return render_template("app/checkers.html")
         if action == 'articles':
             g.list_articles = ARTICLES.query.filter_by(

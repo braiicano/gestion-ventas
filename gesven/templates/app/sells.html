@@ -1,12 +1,158 @@
 {% extends "layout.html" %} {% block title %}-Ventas{% endblock %}
 {% block body %}
 <div class="container">
-    {% if g.idOpen %}
-    <legend class="row">Apertura de caja realizado a las {{openAt}}</legend class="row">
+    {% if 'OPEN' in g.status_check %}
+    <div class="card border-primary mb-3 p-2">
+        <div class="row align-items-end">
+            <div class="col-3 text-center">
+                <h5>Fecha de emisión</h5>
+                <small class="form-label" id="open-date">date</small>
+                <small class="form-label" id="open-time">00:00:00</small>
+            </div>
+            <div class="col-3">
+                <label for="listTicket" class="form-label">Tipo de factura</label>
+                <select name="TYPE_INVOICE" id="listTicket" class="form-select">
+                    <option value="">--Seleccione un tipo--</option>
+                    <!-- More options -->
+                </select>
+            </div>
+            <div class="col">
+                <div class="form-floating">
+                    <input type="text" class="form-control" readonly value="">
+                    <label for="inputCod" class="form-label">Comprobante</label>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="row mt-4">
+        <div class="col">
+            <div class="row card text-white bg-primary mb-4 px-1">
+                <label for="selectArticle" class="form-label mt-4">Ingrese artículo</label>
+                <input type="search" class="form-control" name="ARTICLE" id="selectArticle">
+                <div class="row card-footer mt-2 align-items-end">
+                    <div class="col-5">
+                        <select class="form-select" name="TYPE_UNITY" id="type_unity">
+                            <option value="UNITY">Unidades</option>
+                            <option value="OTHER">Otros</option>
+                            <option value="METERS">Metros</option>
+                            <option value="LITERS">Litros</option>
+                            <option value="KILOS">Kilos</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label for="selectCount" class="form-label form-label-sm ">Cantidad</label>
+                        <input type="number" class="form-control form-control-sm" name="COUNT_ARTICLES"
+                            id="selectCount">
+                    </div>
+                    <div class="col-3 text-center">
+                        <button class="btn btn-sm btn-secondary" type="button">Agregar</button>
+                    </div>
+                </div>
+            </div>
+            {%set new_name=''%}
+            <div class="row card text-white bg-primary px-1">
+                <label for="selectClients" class="form-label mt-4">Datos de cliente</label>
+                <div class="row">
+                    <div class="col-4">
+                        <select class="form-select" name="CLIENT_SELECT" id="selectClientFilter">
+                            <option value="DU">DNI</option>
+                            <option value="NAME">Nombre</option>
+                            <option value="SURNAME">Apellido</option>
+                        </select>
+                    </div>
+                    <div class="col-8">
+                        <input type="search" class="form-control" value="{{new_name}}" name="CLIENTS"
+                            id="selectClients">
+                    </div>
+                </div>
+                <div class="row card-footer mt-2 align-items-end">
+                    <div class="col">
+                        <input type="text" class="form-control disabled" placeholder="{{new_name}}" readonly>
+                    </div>
+                    <div class="col-3 text-center">
+                        <button class="btn btn-sm btn-secondary" type="button">Agregar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card border-primary mb-3" style="height:100%">
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="table-secondary">
+                            <th scope="col">Cód. Barras</th>
+                            <th scope="col">Detalle</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Subtotal</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Add loop for count items -->
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col d-flex justify-content-between align-items-start">
+            <button type="button" class="btn btn-danger">Resetar</button>
+            <button type="button" class="btn btn-lg btn-success">Completar venta</button>
+        </div>
+        <div class="col-8">
+            <div class="card border-primary mb-3">
+                <table class="table table-hover">
+                    <tr>
+                        <th><h5>Subtotal:</h5></th>
+                        <th><h5>$$$</h5></th>
+                    </tr>
+                    <tr>
+                        <th><h5>Descuentos:</h5></th>
+                        <th><h5>$$$</h5></th>
+                    </tr>
+                    <tr>
+                        <th><h5>Impuestos:</h5></th>
+                        <th><h5>$$$</h5></th>
+                    </tr>
+                    <tr>
+                        <th><h5>Percepción:</h5></th>
+                        <th><h5>$$$</h5></th>
+                    </tr>
+                    <tr class="table-info">
+                        <th><h4>Total:</h4></th>
+                        <th><h4>$$$</h4></th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <table class="table table-hover">
+            <thead>
+                <tr class="table-dark">
+                    <th scope="col">Número comprobante</th>
+                    <th scope="col">Nombre cliente</th>
+                    <th scope="col">Fecha compra</th>
+                    <th scope="col">Tipo de factura</th>
+                    <th scope="col">Ver factura</th>
+                    <th scope="col">Valor compra</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop for show all invoices at open check -->
+                <tr class="table-active">
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
     {% else %}
     <div class="position-relative">
-        <div class="position-absolute top-0 start-50 translate-middle-x card text-white bg-dark" style=" max-width:30em">
+        <div class="position-absolute top-0 start-50 translate-middle-x card text-white bg-dark"
+            style=" max-width:30em">
             <div class="card-body">
                 <a href="{{url_for('application.application',business=g.session,checker=g.user,action='check')}}"
                     class="list-group-item list-group-item-action flex-column align-items-start active">
@@ -14,7 +160,8 @@
                         <h5 class="m-4">Aún no abriste caja</h5>
                         <small class="m-3">Por favor haga click aquí para abrir caja</small>
                     </div>
-                    <p class="mb-1 p-4">Para poder realizar ventas, primero tienes que abrir caja, haciendo click en este panel
+                    <p class="mb-1 p-4">Para poder realizar ventas, primero tienes que abrir caja, haciendo click en
+                        este panel
                         o en el panel <b>Caja</b></p>
                     <small id="open-date">date</small>
                     <small id="open-time">00:00:00</small>

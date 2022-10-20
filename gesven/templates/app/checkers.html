@@ -4,10 +4,10 @@
     <div class="row text-center">
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation"> <a
-                    class="nav-link {%if not g.idOpen%}active{%endif%}{%if g.open_check%}disabled{%endif%}"
+                    class="nav-link {%if 'CLOSE' in g.status_check %}active{%else%}disabled{%endif%}"
                     data-bs-toggle="tab" href="#open" aria-selected="true" role="tab">Apertura</a> </li>
             <li class="nav-item" role="presentation"> <a
-                    class="nav-link {%if g.idOpen%}active{%endif%}{%if not g.open_check%}disabled{%endif%}"
+                    class="nav-link {%if 'OPEN' in g.status_check %}active{%else%}disabled{%endif%}"
                     data-bs-toggle="tab" href="#close" aria-selected="false" role="tab" tabindex="-1">Cierre</a> </li>
             <li class="nav-item" role="presentation"> <a class="nav-link" data-bs-toggle="tab" href="#today"
                     aria-selected="false" role="tab" tabindex="-1">Estadísticas de hoy</a> </li>
@@ -19,10 +19,9 @@
                     id="inputSmall"> </li>
         </ul>
         <div id="myTabContent" class="tab-content">
-            {{ render_open_close_check('apertura',g.open_check)}}
-            {{ render_open_close_check('cierre',g.open_check)}}
+            {{ render_open_close_check('apertura')}}
+            {{ render_open_close_check('cierre')}}
             <div class="tab-pane fade" id="today" role="tabpanel">
-                {% if g.type_user == 'admin' %}
                 <table class="table table-hover">
                     <thead>
                         <tr class="table-dark">
@@ -36,49 +35,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for check in today_check %}
-                        {% if check.NAME_CHECK == g.check %}
+                        {% if g.type_user == 'admin' %}
+                        {% for register_oc in g.total_register_oc %}
                         <tr>
-                            <th scope="row">{{check.NAME_CHECK}}</th>
-                            <td>{% if check.HOUR_OPEN %} {{check.HOUR_OPEN}} {%endif%}</td>
-                            <td>{% if check.AMOUNT_OPEN %} ${{check.AMOUNT_OPEN}} {%endif%}</td>
-                            <td>{% if check.HOUR_CLOSE %} {{check.HOUR_CLOSE}} {%endif%}</td>
-                            <td>{% if check.AMOUNT_CLOSE %} ${{check.AMOUNT_CLOSE}} {%endif%}</td>
-                            <td>{% if check.AMOUNT_TOTAL %} ${{check.AMOUNT_TOTAL}} {%endif%}</td>
-                            <td>{% if check.INVOICE%} {{check.INVOICE}} {%endif%}</td>
+                            <th scope="row">{% for name in g.list_checkers %} {% if name.ID == register_oc.CHECKER_ID %}{{name.NAME}} {{name.SURNAME}}{% endif %}                             
+                            {% endfor %}</th>
+                            <td>{% if register_oc.OPEN_TIME %} {{register_oc.OPEN_TIME}} {%endif%}</td>
+                            <td>{% if register_oc.OPEN_AMOUNT %} ${{register_oc.OPEN_AMOUNT}} {%endif%}</td>
+                            <td>{% if register_oc.CLOSE_TIME %} {{register_oc.CLOSE_TIME}} {%else%}Aún abierto{%endif%}</td>
+                            <td>{% if register_oc.CLOSE_AMOUNT %} ${{register_oc.CLOSE_AMOUNT}} {%endif%}</td>
+                            <td>{% if register_oc.TOTAL_AMOUNT %} ${{register_oc.TOTAL_AMOUNT}} {%endif%}</td>
+                            <td>{% if register_oc.INVOICE%} {{register_oc.INVOICE}} {%endif%}</td>
                         </tr>
-                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
                 <br>
                 {% else %}
                 <!-- <legend>Datos de cajero ordinario</legend> -->
-                <table class="table table-hover">
-                    <thead>
-                        <tr class="table-dark">
-                            <th scope="col">Cajero</th>
-                            <th scope="col">Hora apertura</th>
-                            <th scope="col">Monto apertura</th>
-                            <th scope="col">Hora cierre</th>
-                            <th scope="col">Monto cierre</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Facturas (click para ver)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for check in today_check %}
-                        <tr>
-                            <th scope="row">{{check.NAME_CHECK}}</th>
-                            <td>{% if check.HOUR_OPEN %} {{check.HOUR_OPEN}} {%endif%}</td>
-                            <td>{% if check.AMOUNT_OPEN %} ${{check.AMOUNT_OPEN}} {%endif%}</td>
-                            <td>{% if check.HOUR_CLOSE %} {{check.HOUR_CLOSE}} {%endif%}</td>
-                            <td>{% if check.AMOUNT_CLOSE %} ${{check.AMOUNT_CLOSE}} {%endif%}</td>
-                            <td>{% if check.AMOUNT_TOTAL %} ${{check.AMOUNT_TOTAL}} {%endif%}</td>
-                            <td>{% if check.INVOICE%} {{check.INVOICE}} {%endif%}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+                <tbody>
+                    {% for register_oc in g.register_oc %}
+                    <tr>
+                        <th scope="row">{{g.user}}</th>
+                        <td>{% if register_oc.OPEN_TIME %} {{register_oc.OPEN_TIME}} {%endif%}</td>
+                        <td>{% if register_oc.OPEN_AMOUNT %} ${{register_oc.OPEN_AMOUNT}} {%endif%}</td>
+                        <td>{% if register_oc.CLOSE_TIME %} {{register_oc.CLOSE_TIME}}{%else%}Aún abierto{%endif%}</td>
+                        <td>{% if register_oc.CLOSE_AMOUNT %} ${{register_oc.CLOSE_AMOUNT}} {%endif%}</td>
+                        <td>{% if register_oc.TOTAL_AMOUNT %} ${{register_oc.TOTAL_AMOUNT}} {%endif%}</td>
+                        <td>{% if register_oc.INVOICE%} {{register_oc.INVOICE}} {%endif%}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
                 </table>
                 {% endif %}
             </div>
@@ -89,6 +76,6 @@
     </div>
 </div>
 {% endblock %}
-{% block scriptjs %}
-<script src="{{url_for('static',filename='js/clock.js')}}"></script>
+{% block javascript %}
+<script src="{{url_for('static',filename='script/clock.js')}}"></script>
 {% endblock %}

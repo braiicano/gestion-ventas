@@ -3,11 +3,11 @@ from datetime import datetime as dt
 # CONVERTIR LOS __repr__() en DICT para al llamarlo tener acceso a todos los valores
 database = SQLAlchemy()
 
-LINK_REGISTER = database.Table('LINK_REGISTER',
-                               database.Column('CHECKER_ID', database.Integer, database.ForeignKey('CHECKERS.ID'),
-                                               primary_key=True),
-                               database.Column('REGISTER_OC_ID', database.Integer, database.ForeignKey(
-                                   'REGISTER_OC.ID'), primary_key=True))
+# LINK_REGISTER = database.Table('LINK_REGISTER',
+#                                database.Column('CHECKER_ID', database.Integer, database.ForeignKey('CHECKERS.ID'),
+#                                                primary_key=True),
+#                                database.Column('REGISTER_OC_ID', database.Integer, database.ForeignKey(
+#                                    'REGISTER_OC.ID'), primary_key=True))
 
 
 class Base(database.Model):
@@ -95,9 +95,12 @@ class CHECKERS(Base):
     TYPE_USER = database.Column(database.Integer, default=1)
     BUSINESS_REF = database.Column(
         database.String(50), database.ForeignKey('MYBUSINESS.USERNAME'))
+    STATUS_CHECK = database.Column(database.String(50),default='CLOSE')
     # BUSINESS_REL = database.relationship(
     #     'MYBUSINESS', backref=database.backref('CHECKERS', lazy=True))
-
+    # def __repr__(self) -> str:
+    #     self.NEW_DICT = {"PIN":self.PIN,"TYPE_USER":self.TYPE_USER,"BUSINESS_REF":self.BUSINESS_REF,"STATUS_CHECK":self.STATUS_CHECK}
+    #     return f'{self.DICT},{self.NEW_DICT}'
 
 class CLIENTS(Base):
     __nametable__ = 'CLIENTS'
@@ -179,6 +182,12 @@ class REGISTER_OC(database.Model):
     CLOSE_TIME = database.Column(database.String(30))
     CLOSE_AMOUNT = database.Column(database.String(30))
     TOTAL_AMOUNT = database.Column(database.String(30))
+    CHECKER_ID = database.Column(database.Integer, database.ForeignKey('CHECKERS.ID'))
+    BUSINESS_REF = database.Column(database.String(50),database.ForeignKey('CHECKERS.BUSINESS_REF'))
 
     def __repr__(self) -> str:
-        return f"{self.ID}"
+        self.DICT= {"ID":self.ID, 
+        "OPEN_DATE":self.OPEN_DATE,"OPEN_TIME":self.OPEN_TIME,"OPEN_AMOUNT":self.OPEN_AMOUNT,
+        "CLOSE_DATE":self.CLOSE_DATE,"CLOSE_TIME":self.CLOSE_TIME,"CLOSE_AMOUNT":self.CLOSE_AMOUNT,
+        "TOTAL_AMOUNT":self.TOTAL_AMOUNT,"CHECKER_ID":self.CHECKER_ID,"BUSINESS_REF":self.BUSINESS_REF}
+        return f"{self.DICT}"

@@ -32,29 +32,29 @@
             <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Caja'%}active{%endif%}"
+                        <a class="nav-link {%if g.action == 'check'%}active{%endif%}"
                             href="{{url_for('application.application',business=g.session,checker=g.user,action='check')}}"
                             role="tab">Caja</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Ventas'%}active{%endif%}"
+                        <a class="nav-link {%if g.action == 'sell'%}active{%endif%}"
                             href="{{url_for('application.application',business=g.session,checker=g.user,action='sell')}}"
                             role="tab">Ventas
                             <span class="visually-hidden">(current)</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Clientes'%}active{%endif%}"
+                        <a class="nav-link {%if g.action == 'clients'%}active{%endif%}"
                             href="{{url_for('application.application',business=g.session,checker=g.user,action='clients')}}"
                             role="tab">Clientes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Proveedores'%}active{%endif%}"
+                        <a class="nav-link {%if g.action == 'providers'%}active{%endif%}"
                             href="{{url_for('application.application',business=g.session,checker=g.user,action='providers')}}"
                             role="tab">Proveedores</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {%if title == 'Artículos'%}active{%endif%}"
+                        <a class="nav-link {%if g.action == 'articles'%}active{%endif%}"
                             href="{{url_for('application.application',business=g.session,checker=g.user,action='articles')}}"
                             role="tab">Artículos</a>
                     </li>
@@ -126,6 +126,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
         crossorigin="anonymous"></script>
+    <script src="{{url_for('static',filename='script/domJsController.js')}}"></script>
     {% block javascript %}
     {% endblock javascript %}
 </body>

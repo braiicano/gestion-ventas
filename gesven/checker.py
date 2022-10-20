@@ -14,6 +14,7 @@ def pin_generator() -> int:
 @bp_checker.route('/add_checker', methods=['POST'])
 def add_checker():
     verify = None
+    TYPE_USER = 0
     if request.args['option'] == 'admin':
         if request.form['NAME'] and len(request.form['PIN']) > 3:
             if request.form['PIN'] == request.form['CONFIRM-PIN']:
@@ -46,7 +47,10 @@ def add_checker():
         database.session.add(new_check)
         database.session.commit()
         if TYPE_USER == 2:
-            g.user = session['checker'] = r['NAME']
+            g.type_user = session['type'] = 'checker' if TYPE_USER == 1 else 'admin'
+            g.user = session['checker'] = f"{r['NAME']}{r['SURNAME']}"
+            session['id_checker'] = CHECKERS.query.filter_by(BUSINESS_REF=g.session).filter_by(NAME=r['NAME']).first().ID
+            g.check_id = session['id_checker']
             flash(f"Bienvenido {g.user}", "success")
         if TYPE_USER == 1:
             flash(f'Se dió de alta al cajero "{r["NAME"]}"', 'success')
@@ -59,7 +63,6 @@ def add_checker():
 def users():
     if request.args['option'] == 'login':
         r = request.form
-        print(r)
         if r['USER']:
             c = CHECKERS.query.filter_by(BUSINESS_REF=g.session).filter_by(NAME=r['USER'].split('$$')[0]).filter_by(
                 SURNAME=r['USER'].split('$$')[1]).first()
@@ -67,7 +70,7 @@ def users():
                 session['type'] = 'checker' if c.TYPE_USER == 1 else 'admin'
                 g.type_user = session['type']
                 g.check_id = session['id_checker'] = c.ID
-                g.check = session['checker'] = r['USER'].replace('$', '')
+                g.user = session['checker'] = r['USER'].replace('$', '')
             else:
                 flash("Pin ingresado no es válido", "danger")
         else:
@@ -159,4 +162,5 @@ def logout():
     session.pop('checker', None)
     session.pop('type', None)
     session.pop('id_checker', None)
+    session.pop('status_check', None)
     return redirect(url_for('checker.auth'))

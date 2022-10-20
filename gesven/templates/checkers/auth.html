@@ -18,20 +18,20 @@
     Para tu seguridad los datos almacenados cuentan con cifrado doble, además, tu información no es expuesta,
     solo son cadenas de caracteres en nuestra base de datos.')}}
     <div class="container">
-        <form action="{{url_for('checker.add_checker',option='admin')}}" method="post" class="form-group">
+        <form action="{{url_for('checker.add_checker',option='admin')}}" autocomplete="off" method="post" class="form-group">
             <legend>Complete con sus datos</legend>
             <div class="row">
                 <div class="col-md-4">
-                    {{render_input('NAME','Nombre/s')}}
+                    {{render_input('NAME','Nombre/s *',id='NAME',req=true)}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('SURNAME','Apellido/s')}}
+                    {{render_input('SURNAME','Apellido/s *',id='SURNAME',req=true)}}
                 </div>
                 <div class="col-md-4">
                     {{render_input('BIRTH_DAY','Fecha de nacimiento','date')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('DU','DNI','number')}}
+                    {{render_input('DU','DNI *','number',id='DU',req=true)}}
                 </div>
                 <div class="col-md-4">
                     {{render_input('PHONE','Teléfono','phone')}}
@@ -54,7 +54,7 @@
                     {{render_input('LEVEL','Nivel de acceso',value='Admin',readonly=true)}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('PIN','Pin de acceso','number',value=g.PIN)}}
+                    {{render_input('PIN','Pin de acceso *','number',value=g.PIN,id='PASS',req=true)}}
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <div style="width:100%">
@@ -74,7 +74,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            {{render_input('CONFIRM-PIN','Confirmar pin','number')}}
+                            {{render_input('CONFIRM-PIN','Confirmar pin *','number',id='CONFIRM')}}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -92,7 +92,7 @@
     {% else %}
     <div class="container bg-secondary p-3">
         <h3>Seleccione su usuario:</h3>
-        <form action="{{url_for('checker.users',option='login')}}" method="post">
+        <form action="{{url_for('checker.users',option='login')}}" method="post" autocomplete="off">
             {{render_list()}}
         </form>
     </div>
