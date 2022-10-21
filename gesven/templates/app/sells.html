@@ -6,8 +6,10 @@
         <div class="row align-items-end">
             <div class="col-3 text-center">
                 <h5>Fecha de emisión</h5>
-                <small class="form-label" id="open-date">date</small>
-                <small class="form-label" id="open-time">00:00:00</small>
+                <div tag="showDateTime">
+                    <small class="form-label" id="open-date" tag="showDate">date</small>
+                    <small class="form-label" id="open-time" tag="showTime">00:00:00</small>
+                </div>
             </div>
             <div class="col-3">
                 <label for="listTicket" class="form-label">Tipo de factura</label>
@@ -106,30 +108,52 @@
             <div class="card border-primary mb-3">
                 <table class="table table-hover">
                     <tr>
-                        <th><h5>Subtotal:</h5></th>
-                        <th><h5>$$$</h5></th>
+                        <th>
+                            <h5>Subtotal:</h5>
+                        </th>
+                        <th>
+                            <h5>$$$</h5>
+                        </th>
                     </tr>
                     <tr>
-                        <th><h5>Descuentos:</h5></th>
-                        <th><h5>$$$</h5></th>
+                        <th>
+                            <h5>Descuentos:</h5>
+                        </th>
+                        <th>
+                            <h5>$$$</h5>
+                        </th>
                     </tr>
                     <tr>
-                        <th><h5>Impuestos:</h5></th>
-                        <th><h5>$$$</h5></th>
+                        <th>
+                            <h5>Impuestos:</h5>
+                        </th>
+                        <th>
+                            <h5>$$$</h5>
+                        </th>
                     </tr>
                     <tr>
-                        <th><h5>Percepción:</h5></th>
-                        <th><h5>$$$</h5></th>
+                        <th>
+                            <h5>Percepción:</h5>
+                        </th>
+                        <th>
+                            <h5>$$$</h5>
+                        </th>
                     </tr>
                     <tr class="table-info">
-                        <th><h4>Total:</h4></th>
-                        <th><h4>$$$</h4></th>
+                        <th>
+                            <h4>Total:</h4>
+                        </th>
+                        <th>
+                            <h4>$$$</h4>
+                        </th>
                     </tr>
                 </table>
             </div>
         </div>
     </div>
     <div class="row mt-4">
+        <input class="form-control my-1" type="search" placeholder="Buscar..." name="SEARCH" id="SEARCH"
+                        tag="search" autofocus>
         <table class="table table-hover">
             <thead>
                 <tr class="table-dark">
@@ -143,7 +167,8 @@
             </thead>
             <tbody>
                 <!-- Loop for show all invoices at open check -->
-                <tr class="table-active">
+                <!-- In <th> add tag="searchTarget" -->
+                <tr class="table-active" tag="searchParent">
 
                 </tr>
             </tbody>
@@ -163,8 +188,10 @@
                     <p class="mb-1 p-4">Para poder realizar ventas, primero tienes que abrir caja, haciendo click en
                         este panel
                         o en el panel <b>Caja</b></p>
-                    <small id="open-date">date</small>
-                    <small id="open-time">00:00:00</small>
+                    <div tag="showDateTime">
+                        <small id="open-date" tag="showDate">date</small>
+                        <small id="open-time" tag="showTime">00:00:00</small>
+                    </div>
                 </a>
             </div>
         </div>
@@ -172,6 +199,3 @@
     {% endif %}
 </div>
 {% endblock %}
-{% block javascript %}
-<script src="{{url_for('static',filename='script/clock.js')}}"></script>
-{% endblock javascript %}

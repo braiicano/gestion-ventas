@@ -17,6 +17,37 @@ function catchEnter(e) {
     }
   }
 }
+// Show datetime in document
+function showDateTime(date, time) {
+  const showTime = time
+  const showDate = date
+  const monthNames = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  const interval = setInterval(() => {
+    const local = new Date();
+
+    let day = local.getDate(),
+      month = local.getMonth(),
+      year = local.getFullYear();
+
+    showTime.innerHTML = local.toLocaleTimeString();
+    showDate.innerHTML = `${day} ${monthNames[month]} ${year}`;
+  }, 1000);
+}
+
 // Check password equals
 function checkPass(e) {
   let item = e.currentTarget;
@@ -37,42 +68,41 @@ function checkPass(e) {
   }
 }
 
-
 // Check Passwords values
 function checkPasswordValue(e) {
   let item = e.currentTarget;
   let value = item.value;
   let insertIn = document.querySelector("[tag='passwordInsert']");
   let tagConfirm = document.querySelector("[tag='confirm']");
-  let expNum= /[0-9]/;
-  let expMay= /[A-Z]/;
-  let expMin= /[a-z]/;
+  let expNum = /[0-9]/;
+  let expMay = /[A-Z]/;
+  let expMin = /[a-z]/;
   let err = [];
-  if (value.length<8){
-    err.push('Debe ser mayor a 8 carácteres')
+  if (value.length < 8) {
+    err.push("Debe ser mayor a 8 carácteres");
   }
-  if (!expNum.test(value)){
-    err.push('Al menos un número')
+  if (!expNum.test(value)) {
+    err.push("Al menos un número");
   }
-  if (!expMay.test(value)){
-    err.push('Al menos una mayúscula')
+  if (!expMay.test(value)) {
+    err.push("Al menos una mayúscula");
   }
-  if (!expMin.test(value)){
-    err.push('Al menos una minúscula')
+  if (!expMin.test(value)) {
+    err.push("Al menos una minúscula");
   }
-  if (err.length>0){
-    insertIn.innerHTML=err.toString()
+  if (err.length > 0) {
+    insertIn.innerHTML = err.toString();
     item.classList.remove("is-valid");
     item.classList.add("is-invalid");
-  }else{
-    insertIn.innerHTML=''
+  } else {
+    insertIn.innerHTML = "";
     item.classList.remove("is-invalid");
     item.classList.add("is-valid");
   }
-  if (value == tagConfirm.value){
+  if (value == tagConfirm.value) {
     tagConfirm.classList.remove("is-invalid");
     tagConfirm.classList.add("is-valid");
-  }else{
+  } else {
     tagConfirm.classList.remove("is-valid");
     tagConfirm.classList.add("is-invalid");
   }
@@ -99,7 +129,7 @@ function verifyInputCheck(e) {
     item.classList.remove("is-invalid");
     item.classList.add("is-valid");
   } else {
-    if (e.key === 'Enter') document.querySelector('form').preventDefault()
+    if (e.key === "Enter") document.querySelector("form").preventDefault();
     item.classList.remove("is-valid");
     item.classList.add("is-invalid");
   }
@@ -198,5 +228,9 @@ d.addEventListener("DOMContentLoaded", function () {
       "keyup",
       searchElements
     );
+  }
+  if (d.querySelector("div[tag='showDateTime']")) {
+    let listShowDateTime = d.querySelectorAll("div[tag='showDateTime']");
+    listShowDateTime.forEach((e) => showDateTime(e.firstElementChild, e.lastElementChild));
   }
 });

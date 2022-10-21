@@ -81,9 +81,9 @@ none) %}
     <div class="container row justify-content-center">
         <div class="card border-secondary mb-3" style="max-width: 30rem;">
             <div class="card-header">Fecha y hora de {{status}}</div>
-            <div class="card-body">
-                <h5 class="card-title" id="{{name}}-date">date</h5>
-                <h5 class="card-title" id="{{name}}-time">00:00</h5>
+            <div class="card-body" tag="showDateTime">
+                <h5 class="card-title" id="{{name}}-date" tag="showDate">date</h5>
+                <h5 class="card-title" id="{{name}}-time" tag="showTime">00:00</h5>
             </div>
             {% if 'OPEN' in g.status_check %}<div class="card-header">Abrió caja con ${{g.status_check.split('|')[-1]}}
             </div>{%endif%}
