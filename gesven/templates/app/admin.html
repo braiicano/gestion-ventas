@@ -10,10 +10,11 @@
         </fieldset>
         <div class="row">
             <div class="col">
-                {{render_input('1SERNAME','Usuario',value=g.admin['USERNAME'],readonly=true)}}
+                {{render_input('USERNAME','Usuario',value=g.admin['USERNAME'],readonly=true)}}
             </div>
-            <div class="col">
-                {{render_input('PASSWORD','Contraseña',type='password')}}
+            <div class="col" tag='list_form'>
+                {{render_input('PASSWORD','Contraseña *',type='password',value=g.pwd, req=true,
+                tag='password',showme=true)}}
             </div>
             <div class="col">
                 {{render_input('TYPE_ACCOUNT','Tipo de cuenta',value='Free' if g.admin.TYPE_ACCOUNT==1 else
@@ -22,7 +23,7 @@
         </div>
         <div class="row">
             <div class="col">
-                {{render_input('EMAIL','Email','email',value=g.admin.EMAIL)}}
+                {{render_input('EMAIL','Email *','email',value=g.admin.EMAIL, req=true, tag='trigger')}}
             </div>
             <div class="col">
                 {{render_input('PHONE','Teléfono','tel',value=g.admin.PHONE)}}
@@ -71,14 +72,14 @@
             </div>
             <div class="col d-flex justify-content-center align-items-end">
                 <div class="row" style="width: 80%;">
-                    {{render_input('',type='submit')}}
+                    {{render_input('',type='submit',value='Guardar cambios')}}
                 </div>
             </div>
         </div>
     </form>
 </div>
 <br>
-{{show_checker( g.list_checkers ,g.pin)}}
+{{show_checker( g.list_checkers)}}
 {% endblock %}
 {% block scriptjs %}
 <script src="{{url_for('static',filename='js/alerts.js')}}"></script>

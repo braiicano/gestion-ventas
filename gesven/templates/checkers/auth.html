@@ -22,16 +22,16 @@
             <legend>Complete con sus datos</legend>
             <div class="row">
                 <div class="col-md-4">
-                    {{render_input('NAME','Nombre/s *',id='NAME',req=true)}}
+                    {{render_input('NAME','Nombre/s *',tag='trigger',req=true,focus=true)}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('SURNAME','Apellido/s *',id='SURNAME',req=true)}}
+                    {{render_input('SURNAME','Apellido/s *',tag='trigger',req=true)}}
                 </div>
                 <div class="col-md-4">
                     {{render_input('BIRTH_DAY','Fecha de nacimiento','date')}}
                 </div>
                 <div class="col-md-4">
-                    {{render_input('DU','DNI *','number',id='DU',req=true)}}
+                    {{render_input('DU','DNI *','number',tag='trigger',req=true)}}
                 </div>
                 <div class="col-md-4">
                     {{render_input('PHONE','Teléfono','phone')}}
@@ -53,8 +53,10 @@
                 <div class="col-md-4">
                     {{render_input('LEVEL','Nivel de acceso',value='Admin',readonly=true)}}
                 </div>
-                <div class="col-md-4">
-                    {{render_input('PIN','Pin de acceso *','number',value=g.PIN,id='PASS',req=true)}}
+                <div class="col-md-4 row align-items-end">
+                    <div class="col" tag="list_form">
+                        {{render_input('PIN','Pin de acceso *','password',value=g.PIN, tag='pin',req=true)}}
+                    </div>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <div style="width:100%">
@@ -74,11 +76,11 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            {{render_input('CONFIRM-PIN','Confirmar pin *','number',id='CONFIRM')}}
+                            {{render_input('CONFIRM-PIN','Confirmar pin *','password',tag='confirm')}}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <input id="submit-form" type="submit" class="btn btn-primary disabled" value="Guardar datos">
+                            <input id="submit-form" type="submit" class="btn btn-primary disabled" tag="submit" value="Guardar datos">
                         </div>
                     </div>
                 </div>
@@ -87,7 +89,6 @@
     </div>
     {% block javascript %}
     <script id='modal-js' src="{{url_for('static',filename='script/modal.js')}}"></script>
-    <script src="{{url_for('static',filename='script/check.js')}}"></script>
     {% endblock javascript %}
     {% else %}
     <div class="container bg-secondary p-3">

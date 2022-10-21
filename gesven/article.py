@@ -17,7 +17,7 @@ def article():
                 r['PUBLIC_PRICE']) if r['PUBLIC_PRICE'] != '' else 0
             STOCK = int(r['STOCK']) if r['STOCK'] != '' else 0
             IVA = int(r['IVA']) if r['IVA'] != '' else 0
-    
+            ACTIVE = "off"
             try:
                 ACTIVE = "on" if r['ACTIVE'] else "off"
             except:
@@ -40,7 +40,7 @@ def article():
                 c.COST = COST if c.COST != COST else c.COST
                 c.PUBLIC_PRICE = PUBLIC_PRICE if c.PUBLIC_PRICE != PUBLIC_PRICE else c.PUBLIC_PRICE
                 c.IVA = IVA if c.IVA != IVA else c.IVA
-                c.ACTIVE = r['ACTIVE'] if c.ACTIVE != r['ACTIVE'] else c.ACTIVE
+                c.ACTIVE = ACTIVE if c.ACTIVE != ACTIVE else c.ACTIVE
                 c.PROFIT = (PUBLIC_PRICE-COST)
                 c.LAST_UPDATE = dt.today().strftime("%Y-%m-%d %H:%M:%S")
                 modify = 'UPDATE_ARTICLE'

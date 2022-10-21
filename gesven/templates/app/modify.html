@@ -7,15 +7,15 @@
     <form action="{{url_for('checker.users',option='update',values=g.modify.ID)}}" autocomplete="off" method="post">
         <div class="row">
             <div class="col">
-                {{render_input('NAME','Nombre',value=g.modify.NAME)}}
+                {{render_input('NAME','Nombre',value=g.modify.NAME, req=true, tag='trigger')}}
             </div>
             <div class="col">
-                {{render_input('SURNAME','Apellido',value=g.modify.SURNAME)}}
+                {{render_input('SURNAME','Apellido',value=g.modify.SURNAME,req=true, tag='trigger')}}
             </div>
         </div>
         <div class="row">
             <div class="col">
-                {{render_input('DU','Documento',type='number',value=g.modify.DU)}}
+                {{render_input('DU','Documento',type='number',value=g.modify.DU, req=true, tag='trigger')}}
             </div>
             <div class="col">
                 {{render_input('BIRTH_DAY','Fecha de nacimiento',type='date',value=g.modify.BIRTH_DAY)}}
@@ -37,11 +37,11 @@
                 {{render_input('EMAIL','Email',type="email",value=g.modify.EMAIL)}}
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                {{render_input('PIN','PIN',type='number',value=g.modify.PIN)}}
+        <div class="row align-items-center">
+            <div class="col" tag="list_form">
+                {{render_input('PIN','PIN',type='password',value=g.modify.PIN, req=true, tag='pin')}}
             </div>
-            <div class="col row px-5 py-5">
+            <div class="col">
                 <button type="submit" class="btn btn-outline-info text-center">Guardar cambios</button>
             </div>
         </div>

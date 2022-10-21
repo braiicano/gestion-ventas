@@ -1,11 +1,24 @@
-{% macro render_input(name,name_input,type='text',value=none,readonly=none,id=none,req=none) %}
+{% macro
+render_input(name,name_input,type='text',value=none,readonly=none,id=none,req=none,tag=none,showme=none,force=none,
+focus =
+none) %}
+{% if not id %}{% set id = name_input %}{% endif %}
 <div class="form-group">
     {% if name %}<label class="col-form-label mt-4"
         for="{%if id%}{{id}}{%else%}inputDefault{%endif%}">{{name_input}}</label>{% endif %}
     <input type={{type}} class="form-control {% if type=='submit' %}btn btn-primary{% endif %}"
         id="{%if id%}{{id}}{%else%}inputDefault{%endif%}" {% if value %}value="{{value}}" {% endif %} name="{{name}}" {%
-            if readonly %}readonly="" {% endif %}{%
-                if req %}required{% endif %}>
+        if readonly %}readonly="" {% endif %}{% if req %}required{% endif %} {% if tag %}tag={{tag}}{% endif %} {% if
+        focus %}autofocus{% endif %}>
+    {% if not force %}
+    {% if tag=='pin' or showme %}
+    <button type="button" class="btn btn-sm btn-link" tag="hidden">Ver</button>
+    {% endif %}
+    {% endif %}
+    {% if tag=='password' %}
+    <small id="emailHelp" class="form-text text-muted" tag="passwordInsert"></small>
+    {% endif %}
+
 </div>
 {% endmacro %}
 
@@ -37,7 +50,6 @@
 
 {% macro render_list() %}
 <div class="row">
-
     <div class="col">
         <label for="users" class="form-label mt-4">Usuarios disponibles</label>
         <select class="form-select" name="USER" id="users" autofocus>
@@ -48,10 +60,10 @@
         </select>
     </div>
     <div class="col">
-        {{render_input('PIN','Ingrese pin','password',id="PIN")}}
+        {{render_input('PIN','Ingrese pin','password',tag="pin",force=true)}}
     </div>
     <div class="col mt-3">
-        {{render_input('submit','','submit')}}
+        {{render_input('submit','','submit',tag='submit')}}
     </div>
     <div class="row">
         <p class="text-center">
@@ -73,7 +85,8 @@
                 <h5 class="card-title" id="{{name}}-date">date</h5>
                 <h5 class="card-title" id="{{name}}-time">00:00</h5>
             </div>
-            {% if 'OPEN' in g.status_check %}<div class="card-header">Abrió caja con ${{g.status_check.split('|')[-1]}}</div>{%endif%}
+            {% if 'OPEN' in g.status_check %}<div class="card-header">Abrió caja con ${{g.status_check.split('|')[-1]}}
+            </div>{%endif%}
             <div class="card-header">Indique monto de su caja</div>
             <div class="card-body">
                 <form action="{{url_for('control.control',option=name )}}" method="post" autocomplete="off">
@@ -81,10 +94,11 @@
                         <div class="input-group mb-3">
                             <span class="input-group-text">$</span>
                             <input name={{name}} type="text" class="form-control"
-                                aria-label="Amount (to the nearest dollar)" />
+                                aria-label="Amount (to the nearest dollar)" tag='checker' />
                             <button class="btn btn-primary input-group-text" type="submit"
                                 id="button-addon2">{{status.capitalize()}}</button>
                         </div>
+                        <small>Solo admite puntos</small>
                     </div>
                 </form>
             </div>
@@ -94,7 +108,7 @@
 {% endmacro %}
 
 
-{% macro show_checker(list_checkers,randomPin=none) %}
+{% macro show_checker(list_checkers) %}
 <div class="container-fluid col mt-4 p-0">
     <table class="table table-hover mt-4">
         <div class="row">
@@ -115,10 +129,10 @@
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-md">
-                                    {{render_input('NAME','Nombre/s *',req=true,id='NAME')}}
+                                    {{render_input('NAME','Nombre/s *',req=true,tag='trigger')}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('SURNAME','Apellido/s *',req=true,id='SURNAME')}}
+                                    {{render_input('SURNAME','Apellido/s *',req=true,tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -152,8 +166,8 @@
                                 <div class="col-md">
                                     {{render_input('LEVEL','Nivel de acceso',value='Cajero',readonly=true)}}
                                 </div>
-                                <div class="col-md">
-                                    {{render_input('PIN','Pin de acceso *','number',value=g.PIN,req=true,id='PIN')}}
+                                <div class="col-md" tag='list_form'>
+                                    {{render_input('PIN','Pin de acceso *','password',value=g.PIN,req=true,tag='pin')}}
                                 </div>
                             </div>
                         </div>
@@ -173,7 +187,7 @@
                 <td>Dirección</td>
                 <td>Teléfono</td>
                 <td>Email</td>
-                <td>PIN</td>
+                <!-- <td>PIN</td> -->
                 <td>Acciones</td>
             </tr>
         </thead>
@@ -186,9 +200,9 @@
             <td>{{check.ADDRESS}}</td>
             <td>{{check.PHONE}}</td>
             <td>{{check.EMAIL}}</td>
-            <td class="hidden-click">
-                <p>{{check.PIN}}</p>
-            </td>
+            <!-- <td tag="hoverHidden">
+                <p style="display:hidden">{{check.PIN}}</p>
+            </td> -->
             <td class="text-center row">
                 <button type="button" class="btn btn-info btn-sm col" data-bs-toggle="modal"
                     data-bs-target="#{{check.NAME}}{{check.ID}}">Editar</button>
@@ -211,10 +225,11 @@
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-md">
-                                    {{render_input('NAME','Nombre/s *',req=true,id='NAME',value=check.NAME)}}
+                                    {{render_input('NAME','Nombre/s *',req=true,value=check.NAME, tag='trigger')}}
                                 </div>
                                 <div class="col-md">
-                                    {{render_input('SURNAME','Apellido/s *',req=true,id='SURNAME',value=check.SURNAME)}}
+                                    {{render_input('SURNAME','Apellido/s *',req=true,value=check.SURNAME,
+                                    tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -248,8 +263,9 @@
                                 <div class="col-md">
                                     {{render_input('LEVEL','Nivel de acceso',value='Cajero',readonly=true)}}
                                 </div>
-                                <div class="col-md">
-                                    {{render_input('PIN','Pin de acceso *','number',value=check.PIN)}}
+                                <div class="col-md" tag="list_form">
+                                    {{render_input('PIN','Pin de acceso *','password',value=check.PIN, tag='pin',
+                                    req=true)}}
                                 </div>
                             </div>
                         </div>
@@ -272,13 +288,17 @@
     <table class="table table-hover mt-4">
         <div class="row">
             <legend class="col text-center">Clientes registrados</legend>
-            <div class="container col">
-                <button type="button" class="btn btn-success col" data-bs-toggle="modal"
-                    data-bs-target="#new-client">Agregar nuevo cliente</button>
-                <!-- {{ render_upload_btn() }} -->
+            <div class="container col-8 row">
+                <div class="col">
+                    <button type="button" class="btn btn-success col" data-bs-toggle="modal"
+                        data-bs-target="#new-client">Agregar nuevo cliente</button>
+                </div>
+                <div class="col-9">
+                    <input class="form-control" type="search" placeholder="Buscar..." name="SEARCH" id="SEARCH"
+                        tag="search" autofocus>
+                </div>
             </div>
         </div>
-        {{ render_upload('Clientes','clients') }}
         <div class="modal fade" id="new-client" tabindex="-1" aria-labelledby="new-clientLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -290,15 +310,16 @@
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('DOCUMENT','Número de documento *',type='number',req=true,id='DU' )}}
+                                    {{render_input('DOCUMENT','Número de documento *',type='number',req=true,id='DU',
+                                    tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre/s *',req=true,id='NAME')}}
+                                    {{render_input('NAME','Nombre/s *',req=true,id='NAME',tag='trigger')}}
                                 </div>
                                 <div class="col">
-                                    {{render_input('SURNAME','Apellido/s *',req=true,id='SURNAME')}}
+                                    {{render_input('SURNAME','Apellido/s *',req=true,id='SURNAME', tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -342,14 +363,14 @@
             </tr>
         </thead>
         {% for client in list_clients %}
-        <tr>
-            <th>{{client.DU}}</th>
-            <td>{{client.NAME}} {{client.SURNAME}}</td>
-            <td>{{client.ADDRESS}}</td>
-            <td>{{client.PHONE}}</td>
-            <td>{{client.EMAIL}}</td>
-            <td>{{client.CREATED_AT}}</td>
-            <td class="hidden-click">
+        <tr tag="searchParent">
+            <th tag="searchTarget">{{client.DU}}</th>
+            <td tag="searchTarget">{{client.NAME}} {{client.SURNAME}}</td>
+            <td tag="searchTarget">{{client.ADDRESS}}</td>
+            <td tag="searchTarget">{{client.PHONE}}</td>
+            <td tag="searchTarget">{{client.EMAIL}}</td>
+            <td tag="searchTarget">{{client.CREATED_AT}}</td>
+            <td tag="searchTarget" class="hidden-click">
                 <p>{{client.INVOICES}}</p>
             </td>
             <td class="text-center row">
@@ -372,20 +393,23 @@
                             {{client.NAME}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('client.client',option='update',values=client.ID)}}" method="post" autocomplete="off">
+                    <form action="{{url_for('client.client',option='update',values=client.ID)}}" method="post"
+                        autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
                                     {{render_input('DOCUMENT','Número de documento *',type='number',
-                                    value=client.DU, req=true, id='DU')}}
+                                    value=client.DU, req=true, id='DU', tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre', value=client.NAME,req=true, id='NAME')}}
+                                    {{render_input('NAME','Nombre', value=client.NAME,req=true, id='NAME',
+                                    tag='trigger')}}
                                 </div>
                                 <div class="col">
-                                    {{render_input('SURNAME','Apellido',value=client.SURNAME, req=true, id='SURNAME')}}
+                                    {{render_input('SURNAME','Apellido',value=client.SURNAME, req=true, id='SURNAME',
+                                    tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -428,9 +452,15 @@
     <table class="table table-hover mt-4">
         <div class="row">
             <legend class="col text-center">Proveedores registrados</legend>
-            <div class="container col">
-                <button type="button" class="btn btn-success col" data-bs-toggle="modal"
-                    data-bs-target="#new-provider">Agregar nuevo proveedor</button>
+            <div class="container col-8 row">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-success col" data-bs-toggle="modal"
+                        data-bs-target="#new-provider">Agregar nuevo proveedor</button>
+                </div>
+                <div class="col">
+                    <input class="form-control" type="search" placeholder="Buscar..." name="SEARCH" id="SEARCH"
+                        tag="search" autofocus>
+                </div>
             </div>
         </div>
         <div class="modal fade" id="new-provider" tabindex="-1" aria-labelledby="new-providerLabel" aria-hidden="true">
@@ -444,12 +474,13 @@
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre proveedor *',req=true, id='DU')}}
+                                    {{render_input('NAME','Nombre proveedor *',req=true, id='DU', tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME_CONTACT','Nombre/Contacto *',req=true, id='NAME')}}
+                                    {{render_input('NAME_CONTACT','Nombre/Contacto *',req=true, id='NAME',
+                                    tag='trigger')}}
                                 </div>
                                 <div class="col">
                                     {{render_input('ADDR_STREET','Calle y altura')}}
@@ -461,7 +492,7 @@
                             <div class="row">
                                 <div class="col">
                                     {{render_input('CUIT','Razón
-                                    social/CUIT *', req=true, id='PASS')}}
+                                    social/CUIT *', req=true, tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -493,13 +524,13 @@
             </tr>
         </thead>
         {% for provider in list_providers %}
-        <tr>
-            <th>{{provider.NAME}}</th>
-            <td>{{provider.NAME_CONTACT}}</td>
-            <td>{{provider.ADDRESS}}</td>
-            <td>{{provider.PHONE}}</td>
-            <td>{{provider.EMAIL}}</td>
-            <td>{{provider.BUSINESS_NAME}}</td>
+        <tr tag="searchParent">
+            <th tag="searchTarget">{{provider.NAME}}</th>
+            <td tag="searchTarget">{{provider.NAME_CONTACT}}</td>
+            <td tag="searchTarget">{{provider.ADDRESS}}</td>
+            <td tag="searchTarget">{{provider.PHONE}}</td>
+            <td tag="searchTarget">{{provider.EMAIL}}</td>
+            <td tag="searchTarget">{{provider.BUSINESS_NAME}}</td>
             <td class="text-center row">
                 <button type="button" class="btn btn-info btn-sm col" data-bs-toggle="modal"
                     data-bs-target="#provider{{provider.ID}}">Editar</button>
@@ -520,17 +551,19 @@
                             {{provider.NAME}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('provider.provider',option='update',values=provider.ID)}}" method="post" autocomplete="off">
+                    <form action="{{url_for('provider.provider',option='update',values=provider.ID)}}" method="post"
+                        autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre proveedor *',value=provider.NAME, req=true, id='DU')}}
+                                    {{render_input('NAME','Nombre proveedor *',value=provider.NAME, req=true, id='DU',
+                                    tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
                                     {{render_input('NAME_CONTACT','Nombre/Contacto',
-                                    value=provider.NAME_CONTACT, req=true, id='NAME')}}
+                                    value=provider.NAME_CONTACT, req=true, id='NAME', tag='trigger')}}
                                 </div>
                                 <div class="col">
                                     {{render_input('ADDR_STREET','Calle y altura',value=provider.ADDR_STREET)}}
@@ -542,7 +575,7 @@
                             <div class="row">
                                 <div class="col">
                                     {{render_input('CUIT','Razón
-                                    social *',value=provider.CUIT, req=true, id='PASS')}}
+                                    social *',value=provider.CUIT, req=true, tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
@@ -575,10 +608,16 @@
     <table class="table table-hover mt-4">
         <div class="row">
             <legend class="col text-center">Todos los artículos</legend>
-            <div class="container col">
-                <button type="button" class="btn btn-success col" data-bs-toggle="modal"
-                    data-bs-target="#new-article">Agregar nuevo artículo</button>
-                {{render_upload_btn()}}
+            <div class="col-8 row">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-success col" data-bs-toggle="modal"
+                        data-bs-target="#new-article">Agregar nuevo artículo</button>
+                    {{render_upload_btn()}}
+                </div>
+                <div class="col">
+                    <input class="form-control" type="search" placeholder="Buscar..." name="SEARCH" id="SEARCH"
+                        tag="search" autofocus>
+                </div>
             </div>
         </div>
         <div class="modal fade" id="new-article" tabindex="-1" aria-labelledby="new-articleLabel" aria-hidden="true">
@@ -592,12 +631,12 @@
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre *',req=true, id='NAME')}}
+                                    {{render_input('NAME','Nombre *',req=true, id='NAME', tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('CATEGORY','Categoría')}}
+                                    {{render_input('CATEGORY','Categoría', tag='trigger')}}
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
@@ -627,7 +666,7 @@
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('COST','Costo',type='number')}}
+                                    {{render_input('COST','Costo *',type='number', tag='trigger')}}
                                 </div>
                                 <div class="col">
                                     <!-- Automatizar este campo con COST -->
@@ -669,6 +708,7 @@
                 <td>STOCK</td>
                 <td>Costo</td>
                 <td>Precio al público</td>
+                <td>Ganancia</td>
                 <td>IVA</td>
                 <td>¿Activo?</td>
                 <td>Actualizado</td>
@@ -677,24 +717,25 @@
         </thead>
         {% for article in list_articles %}
         {% set ID = article.PROVIDER|int %}
-        <tr>
-            <th>{{article.NAME}}</th>
-            <td>{{article.CATEGORY}}</td>
-            <td>
+        <tr tag="searchParent">
+            <th tag="searchTarget">{{article.NAME}}</th>
+            <td tag="searchTarget">{{article.CATEGORY}}</td>
+            <td tag="searchTarget">
                 {% for provider in g.list_providers %}
                 {% if provider.ID == article.PROVIDER|int %}
                 {{provider.NAME}}
                 {% endif %}
                 {% endfor %}
             </td>
-            <td>{{article.MAKER}}</td>
-            <td>{{article.SKU}}</td>
-            <td>{{article.STOCK}}</td>
-            <td>{{article.COST}}</td>
-            <td>{{article.PUBLIC_PRICE}}</td>
-            <td>{{article.IVA}}</td>
-            <td>{{article.ACTIVE}}</td>
-            <td>{{article.LAST_UPDATE}}</td>
+            <td tar="searchTarget">{{article.MAKER}}</td>
+            <td tar="searchTarget">{{article.SKU}}</td>
+            <td tar="searchTarget">{{article.STOCK}}</td>
+            <td tar="searchTarget">${{article.COST}}</td>
+            <td tar="searchTarget">${{article.PUBLIC_PRICE}}</td>
+            <td tar="searchTarget">${{article.PROFIT}}</td>
+            <td tar="searchTarget">{{article.IVA}}</td>
+            <td tar="searchTarget">{{article.ACTIVE}}</td>
+            <td tar="searchTarget">{{article.LAST_UPDATE}}</td>
             <td class="text-center row">
                 <button type="button" class="btn btn-info btn-sm col" data-bs-toggle="modal"
                     data-bs-target="#article{{article.ID}}">Editar</button>
@@ -712,16 +753,18 @@
                             {{article.NAME}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{url_for('article.article',option='update',values=article.ID)}}" method="post" autocomplete="off">
+                    <form action="{{url_for('article.article',option='update',values=article.ID)}}" method="post"
+                        autocomplete="off">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('NAME','Nombre *',value=article.NAME,req=true, id='NAME')}}
+                                    {{render_input('NAME','Nombre *',value=article.NAME,req=true,
+                                    id='NAME',tag='trigger')}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('CATEGORY','Categoría',value=article.CATEGORY)}}
+                                    {{render_input('CATEGORY','Categoría *',value=article.CATEGORY, tag='trigger')}}
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
@@ -752,7 +795,7 @@
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    {{render_input('COST','Costo',type='number',value=article.COST)}}
+                                    {{render_input('COST','Costo *',type='number',value=article.COST, tag='trigger')}}
                                 </div>
                                 <div class="col">
                                     {{render_input('PUBLIC_PRICE','Precio al
@@ -767,10 +810,10 @@
                                     <div class="form-group">
                                         <label class="mt-4">¿Está a la venta?</label>
                                         <div class="form-check mt-4">
-                                            <label class="form-check-label" for="ACTIVE" {% if article.ACTIVE
-                                                %}checked="on" {% endif %}>Click si esta disponible
+                                            <label class="form-check-label" for="ACTIVE">Click si esta disponible
                                             </label>
-                                            <input class="form-check-input" type="checkbox" name="ACTIVE" id="ACTIVE">
+                                            <input class="form-check-input" type="checkbox" name="ACTIVE" id="ACTIVE"
+                                                checked="{{article.ACTIVE}}">
                                         </div>
                                     </div>
                                 </div>

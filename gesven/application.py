@@ -4,6 +4,7 @@ from flask import (
 from db import ARTICLES, CHECKERS, PROVIDERS, CLIENTS, MYBUSINESS, REGISTER_OC
 from checker import pin_generator
 
+
 bp_app = Blueprint('application', __name__, url_prefix='/app')
 
 
@@ -53,6 +54,7 @@ def application(business=None, checker=None, action=None):
                 g.PIN = pin_generator()
                 g.admin = MYBUSINESS.query.filter_by(
                     USERNAME=g.session).first()
+                g.pwd = "Test pssword"
                 g.list_checkers = CHECKERS.query.filter_by(
                     BUSINESS_REF=g.session).all()
                 return render_template("app/admin.html")
